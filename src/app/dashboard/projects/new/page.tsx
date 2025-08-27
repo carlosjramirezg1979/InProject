@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CalendarIcon, ChevronLeft } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { differenceInWeeks } from 'date-fns';
 import { useRouter } from "next/navigation";
 import { doc, setDoc, collection } from "firebase/firestore";
@@ -30,7 +30,6 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/auth-context";
@@ -271,12 +270,6 @@ export default function NewProjectPage() {
     return (
         <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="mb-6">
-                <Button asChild variant="ghost" className="mb-2">
-                    <Link href="/dashboard">
-                        <ChevronLeft className="mr-2 h-4 w-4" />
-                        Volver
-                    </Link>
-                </Button>
                 <div className="space-y-1">
                     <h1 className="text-3xl font-bold font-headline tracking-tight">Crear Nuevo Proyecto</h1>
                     <p className="text-muted-foreground">
