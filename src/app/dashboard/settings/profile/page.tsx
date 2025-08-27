@@ -105,7 +105,7 @@ export default function ProfilePage() {
                                 <FormItem>
                                 <FormLabel>Nombres</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Tu nombre de pila" {...field} />
+                                    <Input placeholder="Ej: Juan" {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
@@ -118,7 +118,7 @@ export default function ProfilePage() {
                                 <FormItem>
                                 <FormLabel>Apellidos</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Tus apellidos" {...field} />
+                                    <Input placeholder="Ej: Pérez" {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
@@ -131,7 +131,7 @@ export default function ProfilePage() {
                                 <FormItem>
                                 <FormLabel>Dirección de Correo Electrónico</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Tu correo para notificaciones" {...field} />
+                                    <Input placeholder="Ej: usuario@ejemplo.com" {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
@@ -145,7 +145,7 @@ export default function ProfilePage() {
                                 <FormLabel>Número de Celular</FormLabel>
                                 <FormControl>
                                     <Input 
-                                        placeholder="Ej: 3001234567 (sin indicativos ni espacios)" 
+                                        placeholder="Ej: 3001234567" 
                                         {...field} 
                                         onChange={(e) => {
                                             const numericValue = e.target.value.replace(/\D/g, '');
