@@ -59,41 +59,36 @@ export default function ProfilePage() {
     
     const selectedDepartment = form.watch("department");
 
-    // Effect to populate the form with user profile data
     useEffect(() => {
         if (userProfile) {
-            // Pre-populate the cities list if a department is already saved in the profile
             if (userProfile.department) {
                 setCities(getCitiesByDepartment(userProfile.department) || []);
             }
-            // Reset the form with all data from the user profile
             form.reset({
                 firstName: userProfile.firstName || "",
                 lastName: userProfile.lastName || "",
-                email: userProfile.email || "",
+                email: user?.email || "",
                 phone: userProfile.phone || "",
                 country: userProfile.country || "co",
                 department: userProfile.department || "",
                 city: userProfile.city || "",
             });
         }
-    }, [userProfile, form]);
+    }, [userProfile, user, form]);
     
-    // Effect to handle department changes and update the city list accordingly
     useEffect(() => {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
             
-            // If the current city is not in the new list of cities, reset it.
-            // This is important for when the user changes the department.
-            if (userProfile && selectedDepartment !== userProfile.department) {
+            const currentCity = form.getValues('city');
+            if (currentCity && !departmentCities.includes(currentCity)) {
                  form.setValue('city', '');
             }
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form, userProfile]);
+    }, [selectedDepartment, form]);
 
 
     async function onSubmit(data: ProfileFormValues) {
