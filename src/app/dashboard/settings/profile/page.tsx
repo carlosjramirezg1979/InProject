@@ -169,7 +169,10 @@ export default function ProfilePage() {
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>Departamento</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value}>
+                                        <Select onValueChange={(value) => {
+                                            field.onChange(value);
+                                            form.setValue('city', '');
+                                        }} value={field.value}>
                                             <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Selecciona un departamento" />
