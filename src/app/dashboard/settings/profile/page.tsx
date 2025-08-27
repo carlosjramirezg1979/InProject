@@ -38,13 +38,13 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 const currentUser = projectManagers[0];
 
 const defaultValues: Partial<ProfileFormValues> = {
-  firstName: currentUser.firstName,
-  lastName: currentUser.lastName,
-  email: currentUser.email,
-  phone: currentUser.phone || "",
-  country: currentUser.country || "co",
-  department: currentUser.department || "",
-  city: currentUser.city || "",
+  firstName: "",
+  lastName: "",
+  email: "",
+  phone: "",
+  country: "co",
+  department: "",
+  city: "",
 };
 
 export default function ProfilePage() {
@@ -57,7 +57,7 @@ export default function ProfilePage() {
 
   const [cities, setCities] = useState<string[]>([]);
   const selectedDepartment = form.watch("department");
-
+  
   useEffect(() => {
     if (selectedDepartment) {
       setCities(getCitiesByDepartment(selectedDepartment) || []);
@@ -74,7 +74,9 @@ export default function ProfilePage() {
     if (userIndex !== -1) {
       projectManagers[userIndex] = {
         ...projectManagers[userIndex],
-        ...data
+        ...data,
+        firstName: data.firstName || projectManagers[userIndex].firstName,
+        lastName: data.lastName || projectManagers[userIndex].lastName,
       };
     }
     
@@ -187,7 +189,7 @@ export default function ProfilePage() {
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecciona un departamento" />
-                                        </SelectTrigger>
+                                        </Trigger>
                                         </FormControl>
                                         <SelectContent>
                                            {departments.map((dept) => (
@@ -209,7 +211,7 @@ export default function ProfilePage() {
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecciona una ciudad" />
-                                        </SelectTrigger>
+                                        </Trigger>
                                         </FormControl>
                                         <SelectContent>
                                            {cities.map((city) => (
