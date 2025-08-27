@@ -7,7 +7,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Project } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Info, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -101,6 +102,13 @@ export default function ProjectCharterPage() {
                 <CardDescription>
                 Este documento autoriza formalmente el proyecto y define sus objetivos y alcance iniciales, basándose en la información proporcionada durante su creación.
                 </CardDescription>
+                 <Alert className="mt-4">
+                    <Info className="h-4 w-4" />
+                    <AlertTitle>Nota sobre Cambios</AlertTitle>
+                    <AlertDescription>
+                        Para realizar cualquier modificación a esta Acta de Inicio, se deberá gestionar a través de un "Acta de Control de Cambios", funcionalidad que se agregará próximamente.
+                    </AlertDescription>
+                </Alert>
             </CardHeader>
         </Card>
 
