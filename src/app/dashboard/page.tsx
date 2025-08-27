@@ -3,32 +3,39 @@
 
 import { useAuth } from "@/context/auth-context";
 import { ProjectCard } from "@/components/project-card";
-import { getProjectsByManagerId } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Project } from "@/types";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, documentId } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Loader2 } from "lucide-react";
 
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchProjects() {
-      if (!user) {
+      if (!user || !userProfile || !userProfile.companyIds || userProfile.companyIds.length === 0) {
         setLoading(false);
         return;
-      };
+      }
 
       try {
-        const q = query(collection(db, "projects"), where("projectManagerId", "==", user.uid));
+        // Fetch all projects where the companyId is in the user's list of companyIds
+        // and the projectManagerId is the current user's uid.
+        const q = query(
+          collection(db, "projects"), 
+          where("companyId", "in", userProfile.companyIds),
+          where("projectManagerId", "==", user.uid)
+        );
+        
         const querySnapshot = await getDocs(q);
+        
         const userProjects = querySnapshot.docs.map(doc => ({
           ...doc.data(),
           id: doc.id,
@@ -36,7 +43,9 @@ export default function DashboardPage() {
           startDate: doc.data().startDate.toDate(),
           endDate: doc.data().endDate.toDate(),
         })) as Project[];
+        
         setProjects(userProjects);
+
       } catch (error) {
         console.error("Error fetching projects: ", error);
       } finally {
@@ -44,8 +53,10 @@ export default function DashboardPage() {
       }
     }
 
-    fetchProjects();
-  }, [user]);
+    if (userProfile) {
+        fetchProjects();
+    }
+  }, [user, userProfile]);
   
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
