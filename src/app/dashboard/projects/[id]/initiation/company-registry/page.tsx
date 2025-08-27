@@ -6,6 +6,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
+import { useParams, notFound } from "next/navigation";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import type { Project } from "@/types";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -153,6 +157,11 @@ type CompanyRegistryValues = z.infer<typeof companyRegistrySchema>;
 
 export default function CompanyRegistryPage() {
     const { toast } = useToast();
+    const params = useParams();
+    const projectId = params.id as string;
+
+    const [project, setProject] = React.useState<Project | null>(null);
+    const [loading, setLoading] = React.useState(true);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const [cities, setCities] = React.useState<string[]>([]);
     
@@ -180,6 +189,47 @@ export default function CompanyRegistryPage() {
         mode: "onChange",
     });
 
+    React.useEffect(() => {
+        async function fetchProject() {
+            if (!projectId) {
+                setLoading(false);
+                return;
+            }
+            try {
+                const projectDocRef = doc(db, 'projects', projectId);
+                const projectDocSnap = await getDoc(projectDocRef);
+                if (projectDocSnap.exists()) {
+                    const data = projectDocSnap.data();
+                    const fetchedProject = {
+                        ...data,
+                        id: projectDocSnap.id,
+                        startDate: data.startDate.toDate(),
+                        endDate: data.endDate.toDate(),
+                    } as Project;
+                    setProject(fetchedProject);
+
+                    // Pre-fill sponsor data into contact fields
+                    form.reset({
+                        ...form.getValues(),
+                        contactName: fetchedProject.sponsorName || "",
+                        contactEmail: fetchedProject.sponsorEmail || "",
+                        contactEmailConfirm: fetchedProject.sponsorEmail || "",
+                        contactPhoneNumber: fetchedProject.sponsorPhone || "",
+                    });
+                } else {
+                    notFound();
+                }
+            } catch (err) {
+                console.error("Error fetching project for company registry:", err);
+                toast({ variant: "destructive", title: "Error", description: "No se pudo cargar la información del proyecto." });
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchProject();
+    }, [projectId, form, toast]);
+
+
     const selectedDepartment = form.watch("department");
     
     React.useEffect(() => {
@@ -204,7 +254,15 @@ export default function CompanyRegistryPage() {
             title: "Empresa Registrada",
             description: "La información de la empresa ha sido guardada exitosamente.",
         });
-        form.reset();
+        // form.reset(); // We might not want to reset the form fully
+    }
+    
+    if (loading) {
+        return (
+            <div className="flex h-64 items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
     }
 
   return (
@@ -389,7 +447,7 @@ export default function CompanyRegistryPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Persona de Contacto</CardTitle>
-                        <CardDescription>Información del contacto principal en la empresa.</CardDescription>
+                        <CardDescription>Información del contacto principal en la empresa (pre-cargada desde el patrocinador del proyecto).</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                          <FormField
