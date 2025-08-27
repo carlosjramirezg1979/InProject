@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
-import { useParams, notFound } from "next/navigation";
+import { useParams, notFound, useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import type { Project } from "@/types";
@@ -159,6 +159,7 @@ type CompanyRegistryValues = z.infer<typeof companyRegistrySchema>;
 
 export default function CompanyRegistryPage() {
     const { toast } = useToast();
+    const router = useRouter();
     const params = useParams();
     const projectId = params.id as string;
     const { user, reloadUserProfile } = useAuth();
@@ -255,12 +256,13 @@ export default function CompanyRegistryPage() {
         setIsSubmitting(true);
         
         try {
-            await addCompanyAndAssociateWithProject(data, user.uid, project.id);
+            const { companyId } = await addCompanyAndAssociateWithProject(data, user.uid, project.id);
             await reloadUserProfile();
             toast({
                 title: "Empresa Registrada",
                 description: "La información de la empresa ha sido guardada y asociada al proyecto exitosamente.",
             });
+            router.push(`/dashboard/company/${companyId}`);
         } catch (error) {
             console.error("Error saving company:", error);
             const errorMessage = error instanceof Error ? error.message : "Ocurrió un error desconocido.";
