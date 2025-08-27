@@ -11,22 +11,18 @@ service cloud.firestore {
 
     // Los datos de las empresas son legibles por los usuarios que pertenecen a ellas.
     match /companies/{companyId} {
-      // El usuario puede leer si su `uid` existe en un documento de `projectManagers` 
-      // y si el `companyId` que intenta leer está en el array `companyIds` de su perfil.
       allow read: if request.auth != null 
                   && companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds;
       
-      // La escritura/modificación se deja restringida por ahora. 
-      // Se podría permitir al 'ownerId' o a un admin.
+      // La escritura/modificación se deja restringida por ahora.
       allow write: if false;
     }
 
     // Los proyectos son legibles por los usuarios que pertenecen a la empresa del proyecto.
     match /projects/{projectId} {
-      // El usuario puede leer si tiene acceso a la compañía del proyecto.
-      // `resource.data.companyId` accede al campo 'companyId' del documento de proyecto que se está intentando leer.
       allow read: if request.auth != null 
-                  && resource.data.companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds;
+                  && get(/databases/$(database)/documents/projects/$(projectId)).data.companyId 
+                     in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds;
 
       // La creación de un proyecto se permite si el usuario está autenticado y es el dueño del proyecto.
       allow create: if request.auth != null && request.resource.data.projectManagerId == request.auth.uid;
