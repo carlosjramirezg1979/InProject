@@ -12,7 +12,7 @@
             "allow write": "false"
           },
           "projects/{projectId}": {
-            "allow read": "request.auth != null && resource.data.projectManagerId == request.auth.uid",
+            "allow read": "request.auth != null && (resource.data.projectManagerId == request.auth.uid || resource.data.companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds)",
             "allow create": "request.auth != null && request.resource.data.projectManagerId == request.auth.uid",
             "allow update, delete": "false"
           }

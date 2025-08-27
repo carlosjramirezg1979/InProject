@@ -228,6 +228,7 @@ export default function NewProjectPage() {
                 ...data,
                 id: newProjectRef.id,
                 projectManagerId: user.uid,
+                companyId: "", // Add empty companyId for rule consistency
                 budget: parseFloat(data.budget),
                 startDate: Timestamp.fromDate(data.startDate),
                 endDate: Timestamp.fromDate(data.endDate),
