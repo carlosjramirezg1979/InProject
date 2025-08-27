@@ -51,45 +51,49 @@ export default function ProfilePage() {
             email: "",
             phone: "",
             country: "co",
-            department: undefined,
-            city: undefined,
+            department: "",
+            city: "",
         },
         mode: "onChange",
     });
     
     const selectedDepartment = form.watch("department");
 
+    // Effect to populate the form with user profile data
     useEffect(() => {
         if (userProfile) {
-            // First, set the list of cities based on the user's saved department
+            // Pre-populate the cities list if a department is already saved in the profile
             if (userProfile.department) {
                 setCities(getCitiesByDepartment(userProfile.department) || []);
             }
-            // Then, reset the form with all the user profile data
+            // Reset the form with all data from the user profile
             form.reset({
                 firstName: userProfile.firstName || "",
                 lastName: userProfile.lastName || "",
                 email: userProfile.email || "",
                 phone: userProfile.phone || "",
                 country: userProfile.country || "co",
-                department: userProfile.department,
-                city: userProfile.city,
+                department: userProfile.department || "",
+                city: userProfile.city || "",
             });
         }
     }, [userProfile, form]);
     
+    // Effect to handle department changes and update the city list accordingly
     useEffect(() => {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
-            // Reset city only if the department changes from the one in the profile
-            if (selectedDepartment !== userProfile?.department) {
-                form.setValue('city', '');
+            
+            // If the current city is not in the new list of cities, reset it.
+            // This is important for when the user changes the department.
+            if (userProfile && selectedDepartment !== userProfile.department) {
+                 form.setValue('city', '');
             }
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form, userProfile?.department]);
+    }, [selectedDepartment, form, userProfile]);
 
 
     async function onSubmit(data: ProfileFormValues) {
@@ -216,9 +220,7 @@ export default function ProfilePage() {
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>Departamento</FormLabel>
-                                        <Select onValueChange={(value) => {
-                                            field.onChange(value);
-                                        }} value={field.value}>
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Selecciona un departamento" />
@@ -240,10 +242,10 @@ export default function ProfilePage() {
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>Ciudad</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value} disabled={cities.length === 0}>
+                                        <Select onValueChange={field.onChange} value={field.value} disabled={!selectedDepartment || cities.length === 0}>
                                             <FormControl>
                                             <SelectTrigger>
-                                                <SelectValue placeholder={cities.length > 0 ? "Selecciona una ciudad" : "Selecciona un departamento primero"} />
+                                                <SelectValue placeholder={selectedDepartment ? "Selecciona una ciudad" : "Selecciona un departamento primero"} />
                                             </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
