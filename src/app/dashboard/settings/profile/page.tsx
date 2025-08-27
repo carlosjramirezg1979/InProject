@@ -136,10 +136,17 @@ export default function ProfilePage() {
                                 <FormItem>
                                 <FormLabel>Número de Celular</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Ej: +57 300 123 4567" {...field} />
+                                    <Input 
+                                        placeholder="Ej: 3001234567" 
+                                        {...field} 
+                                        onChange={(e) => {
+                                            const numericValue = e.target.value.replace(/\D/g, '');
+                                            field.onChange(numericValue);
+                                        }}
+                                    />
                                 </FormControl>
                                  <FormDescription>
-                                    Tu número de contacto principal, incluyendo el indicativo del país.
+                                    Tu número de contacto principal, sin indicativos ni espacios.
                                 </FormDescription>
                                 <FormMessage />
                                 </FormItem>
