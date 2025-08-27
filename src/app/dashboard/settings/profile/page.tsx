@@ -59,18 +59,16 @@ export default function ProfilePage() {
     
     const selectedDepartment = form.watch("department");
 
+    // Effect to populate form with profile data when it's loaded
     useEffect(() => {
-        if (userProfile) {
-            // Step 1: Set the list of cities based on the profile's department
+        if (userProfile && user) {
             const profileCities = getCitiesByDepartment(userProfile.department || '') || [];
             setCities(profileCities);
 
-            // Step 2: Reset the form with all the user profile data.
-            // This ensures that when the city field is set, its possible options are already available.
             form.reset({
                 firstName: userProfile.firstName || "",
                 lastName: userProfile.lastName || "",
-                email: user?.email || "",
+                email: user.email || "",
                 phone: userProfile.phone || "",
                 country: userProfile.country || "co",
                 department: userProfile.department || "",
@@ -78,14 +76,14 @@ export default function ProfilePage() {
             });
         }
     }, [userProfile, user, form]);
-    
+
+    // Effect to handle department changes by the user
     useEffect(() => {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
             
-            // If the department changes due to user interaction, reset the city field
-            // to ensure a valid selection.
+            // Only reset city if the department change is an interaction, not on initial load.
             if (userProfile && selectedDepartment !== userProfile.department) {
                  form.setValue('city', '');
             }
