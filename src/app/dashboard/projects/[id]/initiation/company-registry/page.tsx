@@ -134,7 +134,7 @@ const companyRegistrySchema = z.object({
   employeeCount: z.string({ required_error: "El número de empleados es obligatorio." }),
   companyType: z.string({ required_error: "El tipo de empresa es obligatorio." }),
   address: z.string().min(1, "La dirección es obligatoria."),
-  website: z.string().url("Debe ser una URL válida.").optional().or(z.literal('')),
+  website: z.string().optional(),
   description: z.string().optional(),
   sector: z.string({ required_error: "El sector es obligatorio." }),
   contactName: z.string().min(1, "El nombre del contacto es obligatorio."),
@@ -344,7 +344,7 @@ export default function CompanyRegistryPage() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Página Web de la Empresa</FormLabel>
-                                    <FormControl><Input placeholder="https://www.ejemplo.com" {...field} /></FormControl>
+                                    <FormControl><Input placeholder="www.ejemplo.com" {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
