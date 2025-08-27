@@ -53,7 +53,7 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
     <Sidebar className="border-r h-full">
         <SidebarHeader>
             <div className="px-2 pt-4 pb-2">
-                <h2 className="font-headline text-lg font-semibold tracking-tight truncate" title={project.name}>
+                <h2 className="font-headline text-lg font-semibold tracking-tight" title={project.name}>
                     {project.name}
                 </h2>
             </div>
