@@ -1,3 +1,4 @@
+
 'use client';
 import { usePathname, useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -112,7 +113,10 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
   const renderMenuItems = (items: { href: string; icon: React.ElementType; label: string }[]) => {
     return items.map((item) => {
         const fullPath = `/dashboard/projects/${projectId}${item.href}`;
-        const isActive = pathname === fullPath;
+        // The project overview page redirects to the charter page, so we also need to check for the base project path.
+        const isProjectRoot = pathname === `/dashboard/projects/${projectId}`;
+        const isActive = isProjectRoot && item.href === '/initiation/charter' ? true : pathname === fullPath;
+
         return (
             <SidebarMenuItem key={item.label}>
                 <Link href={fullPath}>
