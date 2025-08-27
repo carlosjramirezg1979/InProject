@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Loader2, GanttChart } from 'lucide-react';
+import { Loader2, GanttChart, Eye, EyeOff } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -39,6 +39,8 @@ export default function SignUpPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(formSchema),
@@ -156,9 +158,24 @@ export default function SignUpPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Contraseña</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Mínimo 6 caracteres" {...field} />
-                  </FormControl>
+                  <div className="relative">
+                    <FormControl>
+                      <Input 
+                        type={showPassword ? "text" : "password"} 
+                        placeholder="Mínimo 6 caracteres" 
+                        {...field} 
+                      />
+                    </FormControl>
+                    <Button 
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -169,9 +186,24 @@ export default function SignUpPage() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Confirmar Contraseña</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Repite tu contraseña" {...field} />
-                  </FormControl>
+                   <div className="relative">
+                    <FormControl>
+                        <Input 
+                            type={showConfirmPassword ? "text" : "password"} 
+                            placeholder="Repite tu contraseña" 
+                            {...field} 
+                        />
+                    </FormControl>
+                    <Button 
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-muted-foreground"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                        {showConfirmPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
