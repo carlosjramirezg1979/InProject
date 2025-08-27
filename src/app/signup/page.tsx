@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -23,8 +24,15 @@ import { signUp } from '@/lib/auth-service';
 import type { SignUpFormValues } from '@/types';
 
 const formSchema = z.object({
+  firstName: z.string().min(1, { message: 'El nombre es obligatorio.' }),
+  lastName: z.string().min(1, { message: 'El apellido es obligatorio.' }),
+  phone: z.string().optional(),
   email: z.string().email({ message: 'Por favor, introduce un correo electrónico válido.' }),
   password: z.string().min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+    message: "Las contraseñas no coinciden.",
+    path: ["confirmPassword"],
 });
 
 export default function SignUpPage() {
@@ -35,8 +43,12 @@ export default function SignUpPage() {
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      firstName: '',
+      lastName: '',
+      phone: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
@@ -77,6 +89,34 @@ export default function SignUpPage() {
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Nombres</FormLabel>
+                    <FormControl>
+                        <Input placeholder="Ej: Juan" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+                <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Apellidos</FormLabel>
+                    <FormControl>
+                        <Input placeholder="Ej: Pérez" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            </div>
             <FormField
               control={form.control}
               name="email"
@@ -91,6 +131,26 @@ export default function SignUpPage() {
               )}
             />
             <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Número de Celular (Opcional)</FormLabel>
+                    <FormControl>
+                        <Input 
+                            placeholder="Ej: 3001234567" 
+                            {...field}
+                             onChange={(e) => {
+                                const numericValue = e.target.value.replace(/\D/g, '');
+                                field.onChange(numericValue);
+                            }}
+                         />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
               control={form.control}
               name="password"
               render={({ field }) => (
@@ -98,6 +158,19 @@ export default function SignUpPage() {
                   <FormLabel>Contraseña</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="Mínimo 6 caracteres" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirmar Contraseña</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Repite tu contraseña" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -3,10 +3,12 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
+  updateProfile,
   AuthError,
 } from 'firebase/auth';
 import { auth } from './firebase';
 import type { SignInFormValues, SignUpFormValues, ForgotPasswordFormValues } from '@/types';
+import { projectManagers } from './data';
 
 function getFirebaseAuthErrorMessage(error: any): string {
     if (error.code) {
@@ -29,9 +31,24 @@ function getFirebaseAuthErrorMessage(error: any): string {
   }
   
 
-export const signUp = async ({ email, password }: SignUpFormValues) => {
+export const signUp = async ({ firstName, lastName, email, password, phone }: SignUpFormValues) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    
+    await updateProfile(userCredential.user, {
+        displayName: `${firstName} ${lastName}`,
+    });
+
+    // Add user to the mock data array
+    projectManagers.push({
+        id: userCredential.user.uid,
+        firstName,
+        lastName,
+        email,
+        phone,
+        companyIds: [], // Start with no companies
+    });
+    
     return { user: userCredential.user, error: null };
   } catch (error) {
     return { user: null, error: getFirebaseAuthErrorMessage(error as AuthError) };
