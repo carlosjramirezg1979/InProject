@@ -22,6 +22,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ChangePasswordDialog } from "@/components/change-password-dialog";
 import { departments, getCitiesByDepartment } from "@/lib/locations";
 import { useToast } from "@/hooks/use-toast";
+import { updateUserProfile } from "@/lib/user-service";
+import { Loader2 } from "lucide-react";
 
 const profileFormSchema = z.object({
   firstName: z.string().min(1, "El nombre es obligatorio."),
@@ -37,8 +39,9 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function ProfilePage() {
     const { toast } = useToast();
-    const { userProfile } = useAuth();
+    const { user, userProfile, reloadUserProfile } = useAuth();
     const [cities, setCities] = useState<string[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
@@ -74,20 +77,40 @@ export default function ProfilePage() {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
-            if (!departmentCities.includes(form.getValues('city'))) {
-                form.setValue('city', '');
+            if (userProfile?.department !== selectedDepartment) {
+                if (!departmentCities.includes(form.getValues('city'))) {
+                    form.setValue('city', '');
+                }
             }
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form]);
+    }, [selectedDepartment, form, userProfile?.department]);
 
-    function onSubmit(data: ProfileFormValues) {
-        toast({
-            title: "Perfil Actualizado (Simulación)",
-            description: "Tu información ha sido guardada exitosamente.",
-        });
-        console.log("Profile data submitted:", data);
+    async function onSubmit(data: ProfileFormValues) {
+        if (!user) {
+            toast({ variant: "destructive", title: "Error", description: "Usuario no encontrado." });
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            await updateUserProfile(user.uid, data);
+            await reloadUserProfile();
+            toast({
+                title: "Perfil Actualizado",
+                description: "Tu información ha sido guardada exitosamente.",
+            });
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No se pudo actualizar el perfil. Inténtalo de nuevo.",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     }
 
     return (
@@ -229,7 +252,10 @@ export default function ProfilePage() {
                                 )}
                             />
                         </div>
-                        <Button type="submit">Actualizar Perfil</Button>
+                        <Button type="submit" disabled={isSubmitting || !form.formState.isDirty}>
+                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {isSubmitting ? 'Actualizando...' : 'Actualizar Perfil'}
+                        </Button>
                     </form>
                     </Form>
                 </CardContent>
