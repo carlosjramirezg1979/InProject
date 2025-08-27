@@ -53,7 +53,6 @@ const newProjectFormSchema = z.object({
   scope: z.string().min(10, "El alcance debe tener al menos 10 caracteres."),
   startDate: z.date({ required_error: "La fecha de inicio es obligatoria." }),
   endDate: z.date({ required_error: "La fecha de fin es obligatoria." }),
-  weeks: z.string().optional(),
   budget: z.string().regex(/^\d+$/, "El presupuesto debe ser un valor numérico."),
   currency: z.string(),
   acceptanceCriteria: z.string().min(10, "Los criterios de aceptación deben tener al menos 10 caracteres."),
@@ -79,6 +78,7 @@ const defaultValues: Partial<NewProjectFormValues> = {
 export default function NewProjectPage() {
     const router = useRouter();
     const { toast } = useToast();
+    const [weeks, setWeeks] = React.useState('');
 
     const form = useForm<NewProjectFormValues>({
         resolver: zodResolver(newProjectFormSchema),
@@ -86,18 +86,18 @@ export default function NewProjectPage() {
         mode: "onChange",
     });
 
-    const { watch, setValue } = form;
+    const { watch } = form;
     const startDate = watch('startDate');
     const endDate = watch('endDate');
 
     React.useEffect(() => {
         if (startDate && endDate && endDate > startDate) {
-            const weeks = differenceInWeeks(endDate, startDate);
-            setValue('weeks', `${weeks} semana(s)`);
+            const weekCount = differenceInWeeks(endDate, startDate);
+            setWeeks(`${weekCount} semana(s)`);
         } else {
-            setValue('weeks', '');
+            setWeeks('');
         }
-    }, [startDate, endDate, setValue]);
+    }, [startDate, endDate]);
 
     const onSubmit = (data: NewProjectFormValues) => {
         console.log("New project data submitted:", data);
@@ -279,19 +279,13 @@ export default function NewProjectPage() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="weeks"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Tiempo en Semanas</FormLabel>
-                                    <FormControl>
-                                        <Input {...field} readOnly placeholder="Se calcula automáticamente" />
-                                    </FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <FormItem>
+                                <FormLabel>Tiempo en Semanas</FormLabel>
+                                <FormControl>
+                                    <Input value={weeks} readOnly placeholder="Se calcula automáticamente" />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
                         </div>
                         <FormField
                             control={form.control}
