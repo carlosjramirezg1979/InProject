@@ -139,11 +139,16 @@ const newProjectFormSchema = z.object({
   endDate: z.date({ required_error: "La fecha de fin es obligatoria." }),
   budget: z.string().regex(/^\d+$/, "El presupuesto debe ser un valor numérico."),
   currency: z.string(),
-  acceptanceCriteria: z.string().min(10, "Los criterios de aceptación deben tener al menos 10 caracteres."),
   sector: z.string({ required_error: "Debe seleccionar un sector." }),
   sponsorName: z.string().min(3, "El nombre del patrocinador es obligatorio."),
   sponsorPhone: z.string().optional(),
   sponsorEmail: z.string().email("Debe ser un correo electrónico válido."),
+  assumptions: z.string().min(10, "Los supuestos deben tener al menos 10 caracteres."),
+  constraints: z.string().min(10, "Las restricciones deben tener al menos 10 caracteres."),
+  highLevelRisks: z.string().min(10, "Los riesgos deben tener al menos 10 caracteres."),
+  mainDeliverables: z.string().min(10, "Los entregables deben tener al menos 10 caracteres."),
+  approvalRequirements: z.string().min(10, "Los requisitos de aprobación deben tener al menos 10 caracteres."),
+  acceptanceCriteria: z.string().min(10, "Los criterios de aceptación deben tener al menos 10 caracteres."),
 }).refine(data => data.endDate > data.startDate, {
   message: "La fecha de fin debe ser posterior a la fecha de inicio.",
   path: ["endDate"],
@@ -163,6 +168,11 @@ const defaultValues: Partial<NewProjectFormValues> = {
     sponsorName: "",
     sponsorPhone: "",
     sponsorEmail: "",
+    assumptions: "",
+    constraints: "",
+    highLevelRisks: "",
+    mainDeliverables: "",
+    approvalRequirements: "",
 };
 
 
@@ -496,23 +506,110 @@ export default function NewProjectPage() {
                                     </FormItem>
                                 )}
                             />
+                        </div>
+                        
+                        {/* Assumptions, Risks, and Key Criteria */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-medium font-headline">Supuestos, Riesgos y Criterios Clave</h3>
+                            <Separator />
+                             <FormField
+                                control={form.control}
+                                name="mainDeliverables"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Entregables Principales</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={4} placeholder="Ej: 1. Plataforma de E-commerce funcional. 2. Manual de usuario. 3. Plan de marketing de lanzamiento." {...field} />
+                                    </FormControl>
+                                     <FormDescription>
+                                        Liste los 3-5 entregables más importantes del proyecto.
+                                    </FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="assumptions"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Supuestos</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={4} placeholder="Ej: La API de terceros estará disponible y documentada a tiempo." {...field} />
+                                    </FormControl>
+                                     <FormDescription>
+                                        ¿Qué se da por sentado que será verdad para que el proyecto tenga éxito?
+                                    </FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="constraints"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Restricciones</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={4} placeholder="Ej: El proyecto debe cumplir con la normativa de protección de datos GDPR." {...field} />
+                                    </FormControl>
+                                     <FormDescription>
+                                       ¿Existen limitaciones importantes más allá del tiempo y el costo?
+                                    </FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="highLevelRisks"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Riesgos de Alto Nivel</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={4} placeholder="Ej: Dependencia crítica en un único proveedor para la pasarela de pagos." {...field} />
+                                    </FormControl>
+                                     <FormDescription>
+                                        Identifique 2 o 3 riesgos principales evidentes desde el inicio.
+                                    </FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <FormField
                                 control={form.control}
                                 name="acceptanceCriteria"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Criterios de aceptación del Proyecto</FormLabel>
+                                    <FormLabel>Criterios de Aceptación del Proyecto</FormLabel>
                                     <FormControl>
                                         <Textarea rows={5} placeholder="Ej: La plataforma debe procesar 100 transacciones por minuto y cargar en menos de 2 segundos." {...field} />
                                     </FormControl>
                                     <FormDescription>
-                                    Asegura que las expectativas estén alineadas entre el cliente y el equipo del proyecto.
+                                    Criterios medibles que determinan si el proyecto y sus entregables son aceptados.
+                                    </FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="approvalRequirements"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Requisitos de Aprobación del Proyecto</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={4} placeholder="Ej: El éxito del proyecto será confirmado por el Comité de Dirección de TI tras una demostración final." {...field} />
+                                    </FormControl>
+                                     <FormDescription>
+                                        ¿Qué constituye el éxito del proyecto y quién lo aprueba formalmente?
                                     </FormDescription>
                                     <FormMessage />
                                     </FormItem>
                                 )}
                             />
                         </div>
+
 
                         <div className="flex justify-end">
                             <Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>
@@ -527,4 +624,4 @@ export default function NewProjectPage() {
     );
 }
 
-    
+  
