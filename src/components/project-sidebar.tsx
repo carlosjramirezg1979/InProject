@@ -18,9 +18,7 @@ import {
   Construction,
   CheckCircle,
   FileJson,
-  ChevronLeft,
 } from 'lucide-react';
-import { Button } from './ui/button';
 
 interface ProjectSidebarProps {
   project: Project;
@@ -54,13 +52,7 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
   return (
     <Sidebar className="border-r h-full">
         <SidebarHeader>
-             <Button asChild variant="ghost" size="sm" className="w-full justify-start">
-                <Link href="/dashboard">
-                    <ChevronLeft />
-                    <span>Volver a Proyectos</span>
-                </Link>
-            </Button>
-            <div className="px-2 pt-2">
+            <div className="px-2 pt-4 pb-2">
                 <h2 className="font-headline text-lg font-semibold tracking-tight truncate" title={project.name}>
                     {project.name}
                 </h2>
