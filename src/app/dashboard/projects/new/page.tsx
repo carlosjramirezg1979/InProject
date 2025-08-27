@@ -265,11 +265,8 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Justificación del proyecto</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={5} placeholder="Ej: Aumentar las ventas en línea en un 30% y mejorar la experiencia del usuario." {...field} />
+                                        <Textarea rows={5} placeholder="¿Por qué se debe hacer este proyecto y cómo se alinea con los objetivos de la organización? Ej: Aumentar las ventas en línea en un 30% y mejorar la experiencia del usuario." />
                                     </FormControl>
-                                    <FormDescription>
-                                        ¿Por qué se debe hacer este proyecto y cómo se alinea con los objetivos de la organización?
-                                    </FormDescription>
                                     <FormMessage />
                                     </FormItem>
                                 )}
@@ -281,11 +278,8 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Objetivo General</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={4} placeholder="Ej: Desarrollar e implementar una plataforma de e-commerce funcional y escalable." {...field} />
+                                        <Textarea rows={4} placeholder="Este objetivo se refinará más adelante bajo la metodología SMART. Ej: Desarrollar e implementar una plataforma de e-commerce funcional y escalable." />
                                     </FormControl>
-                                    <FormDescription>
-                                        Este objetivo se refinará más adelante bajo la metodología SMART.
-                                    </FormDescription>
                                     <FormMessage />
                                     </FormItem>
                                 )}
@@ -303,6 +297,29 @@ export default function NewProjectPage() {
                                     </FormItem>
                                 )}
                             />
+                        </div>
+
+                         {/* Assigned Project Manager */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-medium font-headline">Gerente de Proyecto Asignado</h3>
+                            <Separator />
+                             <p className="text-sm text-muted-foreground">
+                                La siguiente información corresponde al usuario actual y no es editable.
+                            </p>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <FormLabel>Nombre del Gerente de Proyecto</FormLabel>
+                                    <Input readOnly value="Usuario Ejemplo" />
+                                </div>
+                                <div className="space-y-2">
+                                    <FormLabel>Correo Electrónico</FormLabel>
+                                    <Input readOnly value="usuario@ejemplo.com" type="email" />
+                                </div>
+                                <div className="space-y-2">
+                                    <FormLabel>Número de Contacto</FormLabel>
+                                    <Input readOnly value="3001234567" />
+                                </div>
+                            </div>
                         </div>
 
                         {/* Sponsor Details */}
@@ -605,5 +622,3 @@ export default function NewProjectPage() {
         </div>
     );
 }
-
-    
