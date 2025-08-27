@@ -34,13 +34,13 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 const defaultValues: Partial<ProfileFormValues> = {
-  firstName: "Usuario",
-  lastName: "Ejemplo",
+  firstName: "",
+  lastName: "",
   email: "usuario@ejemplo.com",
-  phone: "+57 300 1234567",
+  phone: "",
   country: "co",
-  department: "ANT",
-  city: "Medellín",
+  department: "",
+  city: "",
 };
 
 export default function ProfilePage() {
