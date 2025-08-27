@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChangePasswordDialog } from "@/components/change-password-dialog";
+import { departments, getCitiesByDepartment } from "@/lib/locations";
 
 const profileFormSchema = z.object({
   firstName: z.string().min(1, "El nombre es obligatorio."),
@@ -35,10 +37,10 @@ const defaultValues: Partial<ProfileFormValues> = {
   firstName: "Usuario",
   lastName: "Ejemplo",
   email: "usuario@ejemplo.com",
-  phone: "+1 234 567 890",
+  phone: "+57 300 1234567",
   country: "co",
-  department: "ant",
-  city: "med",
+  department: "ANT",
+  city: "Medellín",
 };
 
 export default function ProfilePage() {
@@ -47,6 +49,19 @@ export default function ProfilePage() {
     defaultValues,
     mode: "onChange",
   });
+
+  const [cities, setCities] = useState<string[]>([]);
+  const selectedDepartment = form.watch("department");
+
+  useEffect(() => {
+    if (selectedDepartment) {
+      setCities(getCitiesByDepartment(selectedDepartment) || []);
+      form.setValue("city", ""); // Reset city when department changes
+    } else {
+      setCities([]);
+    }
+  }, [selectedDepartment, form]);
+
 
   function onSubmit(data: ProfileFormValues) {
     console.log("Profile data submitted:", data);
@@ -57,7 +72,7 @@ export default function ProfilePage() {
     <div className="space-y-6">
         <Card>
             <CardHeader>
-                <CardTitle>Perfil</CardTitle>
+                <CardTitle>Perfil de Usuario</CardTitle>
                 <CardDescription>
                     Esta es la información que se mostrará públicamente.
                 </CardDescription>
@@ -75,6 +90,9 @@ export default function ProfilePage() {
                                 <FormControl>
                                     <Input placeholder="Tus nombres" {...field} />
                                 </FormControl>
+                                <FormDescription>
+                                    Tu nombre de pila.
+                                </FormDescription>
                                 <FormMessage />
                                 </FormItem>
                             )}
@@ -88,6 +106,9 @@ export default function ProfilePage() {
                                 <FormControl>
                                     <Input placeholder="Tus apellidos" {...field} />
                                 </FormControl>
+                                 <FormDescription>
+                                    Tus apellidos.
+                                </FormDescription>
                                 <FormMessage />
                                 </FormItem>
                             )}
@@ -97,7 +118,7 @@ export default function ProfilePage() {
                             name="email"
                             render={({ field }) => (
                                 <FormItem>
-                                <FormLabel>Correo</FormLabel>
+                                <FormLabel>Dirección de Correo Electrónico</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Tu correo electrónico" {...field} readOnly />
                                 </FormControl>
@@ -115,8 +136,11 @@ export default function ProfilePage() {
                                 <FormItem>
                                 <FormLabel>Número de Celular</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Tu número de celular" {...field} />
+                                    <Input placeholder="Ej: +57 300 123 4567" {...field} />
                                 </FormControl>
+                                 <FormDescription>
+                                    Tu número de contacto principal, incluyendo el indicativo del país.
+                                </FormDescription>
                                 <FormMessage />
                                 </FormItem>
                             )}
@@ -127,7 +151,7 @@ export default function ProfilePage() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>País</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecciona un país" />
@@ -135,11 +159,11 @@ export default function ProfilePage() {
                                         </FormControl>
                                         <SelectContent>
                                             <SelectItem value="co">Colombia</SelectItem>
-                                            <SelectItem value="mx">México</SelectItem>
-                                            <SelectItem value="ar">Argentina</SelectItem>
-                                            <SelectItem value="es">España</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                     <FormDescription>
+                                       Actualmente, la plataforma solo está disponible en Colombia.
+                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -150,16 +174,16 @@ export default function ProfilePage() {
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>Departamento</FormLabel>
-                                     <Select onValuechange={field.onChange} defaultValue={field.value}>
+                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecciona un departamento" />
                                         </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="ant">Antioquia</SelectItem>
-                                            <SelectItem value="cun">Cundinamarca</SelectItem>
-                                            <SelectItem value="val">Valle del Cauca</SelectItem>
+                                           {departments.map((dept) => (
+                                                <SelectItem key={dept.code} value={dept.code}>{dept.name}</SelectItem>
+                                           ))}
                                         </SelectContent>
                                     </Select>
                                 <FormMessage />
@@ -172,16 +196,16 @@ export default function ProfilePage() {
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>Ciudad</FormLabel>
-                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                     <Select onValueChange={field.onChange} value={field.value} disabled={cities.length === 0}>
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecciona una ciudad" />
                                         </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="med">Medellín</SelectItem>
-                                            <SelectItem value="bog">Bogotá</SelectItem>
-                                            <SelectItem value="cal">Cali</SelectItem>
+                                           {cities.map((city) => (
+                                                <SelectItem key={city} value={city}>{city}</SelectItem>
+                                           ))}
                                         </SelectContent>
                                     </Select>
                                 <FormMessage />
