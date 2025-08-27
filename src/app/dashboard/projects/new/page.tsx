@@ -65,6 +65,18 @@ const newProjectFormSchema = z.object({
 
 type NewProjectFormValues = z.infer<typeof newProjectFormSchema>;
 
+const defaultValues: Partial<NewProjectFormValues> = {
+  name: "",
+  description: "",
+  justification: "",
+  generalObjective: "",
+  scope: "",
+  weeks: "",
+  budget: "",
+  acceptanceCriteria: "",
+  sector: "",
+};
+
 
 export default function NewProjectPage() {
     const router = useRouter();
@@ -72,6 +84,7 @@ export default function NewProjectPage() {
 
     const form = useForm<NewProjectFormValues>({
         resolver: zodResolver(newProjectFormSchema),
+        defaultValues,
         mode: "onChange",
     });
 
@@ -353,3 +366,5 @@ export default function NewProjectPage() {
     </div>
   );
 }
+
+    
