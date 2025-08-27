@@ -33,9 +33,6 @@ import {
   Briefcase,
   Presentation,
   Monitor,
-  CheckCircle,
-  FolderArchive,
-  BookUser,
   ListTodo,
   AlertTriangle
 } from 'lucide-react';
@@ -141,22 +138,23 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
       <SidebarContent>
         <SidebarMenu>
             <SidebarGroup>
+                <SidebarGroupLabel asChild><div><navItems.initiation.icon/>{navItems.initiation.label}</div></SidebarGroupLabel>
                 {renderMenuItems(navItems.initiation.items)}
             </SidebarGroup>
             <SidebarGroup>
-                <SidebarGroupLabel asChild><navItems.planning.icon/>{navItems.planning.label}</SidebarGroupLabel>
+                <SidebarGroupLabel asChild><div><navItems.planning.icon/>{navItems.planning.label}</div></SidebarGroupLabel>
                  {renderMenuItems(navItems.planning.items)}
             </SidebarGroup>
             <SidebarGroup>
-                 <SidebarGroupLabel asChild><navItems.execution.icon/>{navItems.execution.label}</SidebarGroupLabel>
+                 <SidebarGroupLabel asChild><div><navItems.execution.icon/>{navItems.execution.label}</div></SidebarGroupLabel>
                  {renderMenuItems(navItems.execution.items)}
             </SidebarGroup>
              <SidebarGroup>
-                 <SidebarGroupLabel asChild><navItems.monitoring.icon/>{navItems.monitoring.label}</SidebarGroupLabel>
+                 <SidebarGroupLabel asChild><div><navItems.monitoring.icon/>{navItems.monitoring.label}</div></SidebarGroupLabel>
                  {renderMenuItems(navItems.monitoring.items)}
             </SidebarGroup>
              <SidebarGroup>
-                 <SidebarGroupLabel asChild><navItems.closing.icon/>{navItems.closing.label}</SidebarGroupLabel>
+                 <SidebarGroupLabel asChild><div><navItems.closing.icon/>{navItems.closing.label}</div></SidebarGroupLabel>
                  {renderMenuItems(navItems.closing.items)}
             </SidebarGroup>
         </SidebarMenu>
