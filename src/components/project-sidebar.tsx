@@ -18,6 +18,8 @@ import {
   Construction,
   CheckCircle,
   FileJson,
+  Rocket,
+  Milestone,
 } from 'lucide-react';
 
 interface ProjectSidebarProps {
@@ -25,11 +27,10 @@ interface ProjectSidebarProps {
 }
 
 const navItems = [
-  { href: '', icon: Home, label: 'Resumen' },
-  { href: '/initiation', icon: ClipboardList, label: 'Inicio', phase: 'initiation' },
-  { href: '/planning', icon: Construction, label: 'Planificación', phase: 'planning' },
-  { href: '/execution', icon: FileJson, label: 'Ejecución', phase: 'execution' },
-  { href: '/closing', icon: CheckCircle, label: 'Cierre', phase: 'closing' },
+  { href: '/initiation', icon: Rocket, label: 'Inicio', phase: 'initiation' },
+  { href: '/planning', icon: ClipboardList, label: 'Planificación', phase: 'planning' },
+  { href: '/execution', icon: Construction, label: 'Ejecución', phase: 'execution' },
+  { href: '/closing', icon: Milestone, label: 'Cierre', phase: 'closing' },
 ];
 
 export function ProjectSidebar({ project }: ProjectSidebarProps) {
@@ -81,6 +82,14 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
       <SidebarFooter>
         <SidebarSeparator />
          <SidebarMenu>
+             <SidebarMenuItem>
+                <Link href={`/dashboard/projects/${projectId}`}>
+                  <SidebarMenuButton isActive={pathname.endsWith(projectId as string)}>
+                    <Home />
+                    <span>Resumen</span>
+                  </SidebarMenuButton>
+                </Link>
+            </SidebarMenuItem>
             <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleGenerateReport}>
                     <FileJson />
