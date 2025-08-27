@@ -15,6 +15,8 @@ export interface Project {
   imageUrl: string;
   companyId: string;
   status: ProjectStatus;
+  currency?: string;
+  budget?: number;
 }
 
 export interface Company {

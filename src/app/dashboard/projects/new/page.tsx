@@ -56,6 +56,7 @@ const newProjectFormSchema = z.object({
   endDate: z.date({ required_error: "La fecha de fin es obligatoria." }),
   weeks: z.string().optional(),
   budget: z.string().regex(/^\d+$/, "El presupuesto debe ser un valor numérico."),
+  currency: z.string({ required_error: "Debe seleccionar una moneda." }),
   acceptanceCriteria: z.string().min(10, "Los criterios de aceptación deben tener al menos 10 caracteres."),
   sector: z.string({ required_error: "Debe seleccionar un sector." }),
 }).refine(data => data.endDate > data.startDate, {
@@ -73,6 +74,7 @@ const defaultValues: Partial<NewProjectFormValues> = {
   scope: "",
   weeks: "",
   budget: "",
+  currency: "USD",
   acceptanceCriteria: "",
   sector: "",
 };
@@ -301,19 +303,52 @@ export default function NewProjectPage() {
                                     </FormItem>
                                 )}
                             />
-                            <FormField
-                                control={form.control}
-                                name="budget"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>Presupuesto Global del Proyecto (USD)</FormLabel>
-                                    <FormControl>
-                                        <Input type="text" inputMode="numeric" placeholder="Ej: 50000" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-6 items-end">
+                                <FormField
+                                    control={form.control}
+                                    name="budget"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Presupuesto Global del Proyecto</FormLabel>
+                                            <FormControl>
+                                                <Input 
+                                                    type="text" 
+                                                    inputMode="numeric" 
+                                                    placeholder="Ej: 50000" 
+                                                    {...field}
+                                                    onChange={(e) => {
+                                                        const numericValue = e.target.value.replace(/\D/g, '');
+                                                        field.onChange(numericValue);
+                                                    }}
+                                                />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="currency"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Moneda</FormLabel>
+                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Moneda" />
+                                                </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="USD">USD</SelectItem>
+                                                    <SelectItem value="EUR">EUR</SelectItem>
+                                                    <SelectItem value="COP">COP</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
                              <FormField
                                 control={form.control}
                                 name="sector"
@@ -366,5 +401,3 @@ export default function NewProjectPage() {
     </div>
   );
 }
-
-    
