@@ -30,6 +30,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
 
 const projectSectors = [
     {
@@ -140,12 +141,30 @@ const newProjectFormSchema = z.object({
   currency: z.string(),
   acceptanceCriteria: z.string().min(10, "Los criterios de aceptación deben tener al menos 10 caracteres."),
   sector: z.string({ required_error: "Debe seleccionar un sector." }),
+  sponsorName: z.string().min(3, "El nombre del patrocinador es obligatorio."),
+  sponsorPhone: z.string().optional(),
+  sponsorEmail: z.string().email("Debe ser un correo electrónico válido."),
 }).refine(data => data.endDate > data.startDate, {
   message: "La fecha de fin debe ser posterior a la fecha de inicio.",
   path: ["endDate"],
 });
 
 type NewProjectFormValues = z.infer<typeof newProjectFormSchema>;
+
+const defaultValues: Partial<NewProjectFormValues> = {
+    name: "",
+    description: "",
+    justification: "",
+    generalObjective: "",
+    scope: "",
+    budget: "",
+    currency: "COP",
+    acceptanceCriteria: "",
+    sponsorName: "",
+    sponsorPhone: "",
+    sponsorEmail: "",
+};
+
 
 export default function NewProjectPage() {
     const router = useRouter();
@@ -154,16 +173,7 @@ export default function NewProjectPage() {
 
     const form = useForm<NewProjectFormValues>({
         resolver: zodResolver(newProjectFormSchema),
-        defaultValues: {
-            name: "",
-            description: "",
-            justification: "",
-            generalObjective: "",
-            scope: "",
-            budget: "",
-            currency: "COP",
-            acceptanceCriteria: "",
-        },
+        defaultValues,
         mode: "onChange",
     });
 
@@ -208,230 +218,302 @@ export default function NewProjectPage() {
                 <CardContent className="pt-6">
                     <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                        <FormField
-                            control={form.control}
-                            name="name"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Nombre del Proyecto</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Ej: Nueva plataforma de E-commerce" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="description"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Descripción del Proyecto</FormLabel>
-                                <FormControl>
-                                    <Textarea rows={4} placeholder="Ej: Desarrollo de una nueva plataforma de comercio electrónico para el cliente 'Moda-Online'." {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="justification"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Justificación del proyecto</FormLabel>
-                                <FormControl>
-                                    <Textarea rows={5} placeholder="Ej: Aumentar las ventas en línea en un 30% y mejorar la experiencia del usuario." {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                    ¿Por qué se debe hacer este proyecto y cómo se alinea con los objetivos de la organización?
-                                </FormDescription>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="generalObjective"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Objetivo General</FormLabel>
-                                <FormControl>
-                                    <Textarea rows={4} placeholder="Ej: Desarrollar e implementar una plataforma de e-commerce funcional y escalable." {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                    Este objetivo se refinará más adelante bajo la metodología SMART.
-                                </FormDescription>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="scope"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Alcance</FormLabel>
-                                <FormControl>
-                                    <Textarea rows={4} placeholder="Ej: Incluye diseño, desarrollo, pruebas y despliegue del sitio web, con catálogo de productos, carrito de compras y pasarela de pagos." {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        {/* Project Details */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-medium font-headline">Detalles del Proyecto</h3>
+                            <Separator />
                             <FormField
                                 control={form.control}
-                                name="startDate"
+                                name="name"
                                 render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                        <FormLabel>Fecha de Inicio</FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                variant={"outline"}
-                                                className={cn(
-                                                    "pl-3 text-left font-normal",
-                                                    !field.value && "text-muted-foreground"
-                                                )}
-                                                >
-                                                {field.value ? (
-                                                    format(field.value, "PPP", { locale: es })
-                                                ) : (
-                                                    <span>Seleccione una fecha</span>
-                                                )}
-                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                initialFocus
-                                            />
-                                            </PopoverContent>
-                                        </Popover>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="endDate"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                        <FormLabel>Fecha de Fin</FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                            <FormControl>
-                                                <Button
-                                                variant={"outline"}
-                                                className={cn(
-                                                    "pl-3 text-left font-normal",
-                                                    !field.value && "text-muted-foreground"
-                                                )}
-                                                >
-                                                {field.value ? (
-                                                    format(field.value, "PPP", { locale: es })
-                                                ) : (
-                                                    <span>Seleccione una fecha</span>
-                                                )}
-                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                </Button>
-                                            </FormControl>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={field.value}
-                                                onSelect={field.onChange}
-                                                disabled={(date) =>
-                                                    startDate ? date <= startDate : false
-                                                }
-                                                initialFocus
-                                            />
-                                            </PopoverContent>
-                                        </Popover>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormItem>
-                                <FormLabel>Tiempo en Semanas</FormLabel>
-                                <FormControl>
-                                    <Input value={weeks} readOnly placeholder="Se calcula automáticamente" />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        </div>
-                        <FormField
-                            control={form.control}
-                            name="budget"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Presupuesto Global del Proyecto (COP)</FormLabel>
+                                    <FormItem>
+                                    <FormLabel>Nombre del Proyecto</FormLabel>
                                     <FormControl>
-                                        <Input 
-                                            type="text" 
-                                            inputMode="numeric" 
-                                            placeholder="Ej: 150000000" 
-                                            {...field}
-                                            onChange={(e) => {
-                                                const numericValue = e.target.value.replace(/\D/g, '');
-                                                field.onChange(numericValue);
-                                            }}
-                                        />
+                                        <Input placeholder="Ej: Nueva plataforma de E-commerce" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Descripción del Proyecto</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={4} placeholder="Ej: Desarrollo de una nueva plataforma de comercio electrónico para el cliente 'Moda-Online'." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="justification"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Justificación del proyecto</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={5} placeholder="Ej: Aumentar las ventas en línea en un 30% y mejorar la experiencia del usuario." {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        ¿Por qué se debe hacer este proyecto y cómo se alinea con los objetivos de la organización?
+                                    </FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="generalObjective"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Objetivo General</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={4} placeholder="Ej: Desarrollar e implementar una plataforma de e-commerce funcional y escalable." {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                        Este objetivo se refinará más adelante bajo la metodología SMART.
+                                    </FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="scope"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Alcance</FormLabel>
+                                    <FormControl>
+                                        <Textarea rows={4} placeholder="Ej: Incluye diseño, desarrollo, pruebas y despliegue del sitio web, con catálogo de productos, carrito de compras y pasarela de pagos." {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* Sponsor Details */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-medium font-headline">Información del Patrocinador</h3>
+                            <Separator />
+                             <FormField
+                                control={form.control}
+                                name="sponsorName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Nombre del Patrocinador</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Nombre completo del patrocinador" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormField
+                                    control={form.control}
+                                    name="sponsorPhone"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Número de Contacto</FormLabel>
+                                        <FormControl>
+                                            <Input 
+                                                placeholder="Ej: 3001234567" 
+                                                {...field}
+                                                onChange={(e) => {
+                                                    const numericValue = e.target.value.replace(/\D/g, '');
+                                                    field.onChange(numericValue);
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="sponsorEmail"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Correo Electrónico</FormLabel>
+                                        <FormControl>
+                                            <Input type="email" placeholder="ejemplo@correo.com" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Timeline and Budget */}
+                         <div className="space-y-4">
+                            <h3 className="text-lg font-medium font-headline">Cronograma y Presupuesto</h3>
+                            <Separator />
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                                <FormField
+                                    control={form.control}
+                                    name="startDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Fecha de Inicio</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                    >
+                                                    {field.value ? (
+                                                        format(field.value, "PPP", { locale: es })
+                                                    ) : (
+                                                        <span>Seleccione una fecha</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={field.value}
+                                                    onSelect={field.onChange}
+                                                    initialFocus
+                                                />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="endDate"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel>Fecha de Fin</FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "pl-3 text-left font-normal",
+                                                        !field.value && "text-muted-foreground"
+                                                    )}
+                                                    >
+                                                    {field.value ? (
+                                                        format(field.value, "PPP", { locale: es })
+                                                    ) : (
+                                                        <span>Seleccione una fecha</span>
+                                                    )}
+                                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                    </Button>
+                                                </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={field.value}
+                                                    onSelect={field.onChange}
+                                                    disabled={(date) =>
+                                                        startDate ? date <= startDate : false
+                                                    }
+                                                    initialFocus
+                                                />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormItem>
+                                    <FormLabel>Tiempo en Semanas</FormLabel>
+                                    <FormControl>
+                                        <Input value={weeks} readOnly placeholder="Se calcula automáticamente" />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="sector"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Sector del proyecto</FormLabel>
-                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            </div>
+                            <FormField
+                                control={form.control}
+                                name="budget"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Presupuesto Global del Proyecto (COP)</FormLabel>
+                                        <FormControl>
+                                            <Input 
+                                                type="text" 
+                                                inputMode="numeric" 
+                                                placeholder="Ej: 150000000" 
+                                                {...field}
+                                                onChange={(e) => {
+                                                    const numericValue = e.target.value.replace(/\D/g, '');
+                                                    field.onChange(numericValue);
+                                                }}
+                                            />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
+                        {/* Sector and Criteria */}
+                        <div className="space-y-4">
+                             <h3 className="text-lg font-medium font-headline">Clasificación y Criterios</h3>
+                            <Separator />
+                            <FormField
+                                control={form.control}
+                                name="sector"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Sector del proyecto</FormLabel>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Seleccione un sector" />
+                                        </SelectTrigger>
+                                        </FormControl>
+                                        <SelectContent>
+                                            {projectSectors.map((group) => (
+                                                <SelectGroup key={group.label}>
+                                                    <SelectLabel>{group.label}</SelectLabel>
+                                                    {group.options.map((option) => (
+                                                        <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="acceptanceCriteria"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Criterios de aceptación del Proyecto</FormLabel>
                                     <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Seleccione un sector" />
-                                    </SelectTrigger>
+                                        <Textarea rows={5} placeholder="Ej: La plataforma debe procesar 100 transacciones por minuto y cargar en menos de 2 segundos." {...field} />
                                     </FormControl>
-                                    <SelectContent>
-                                        {projectSectors.map((group) => (
-                                            <SelectGroup key={group.label}>
-                                                <SelectLabel>{group.label}</SelectLabel>
-                                                {group.options.map((option) => (
-                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                ))}
-                                            </SelectGroup>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="acceptanceCriteria"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Criterios de aceptación del Proyecto</FormLabel>
-                                <FormControl>
-                                    <Textarea rows={5} placeholder="Ej: La plataforma debe procesar 100 transacciones por minuto y cargar en menos de 2 segundos." {...field} />
-                                </FormControl>
-                                <FormDescription>
-                                Asegura que las expectativas estén alineadas entre el cliente y el equipo del proyecto.
-                                </FormDescription>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                    <FormDescription>
+                                    Asegura que las expectativas estén alineadas entre el cliente y el equipo del proyecto.
+                                    </FormDescription>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+
                         <div className="flex justify-end">
                             <Button type="submit" disabled={!form.formState.isValid || form.formState.isSubmitting}>
                                 {form.formState.isSubmitting ? "Creando..." : "Crear Proyecto"}
@@ -444,3 +526,5 @@ export default function NewProjectPage() {
         </div>
     );
 }
+
+    
