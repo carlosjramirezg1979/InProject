@@ -20,7 +20,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChangePasswordDialog } from "@/components/change-password-dialog";
 import { departments, getCitiesByDepartment } from "@/lib/locations";
-import { projectManagers } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 
 const profileFormSchema = z.object({
@@ -39,8 +38,6 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const [cities, setCities] = useState<string[]>([]);
     
-    const currentUserId = 'pm-001';
-
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
@@ -55,65 +52,23 @@ export default function ProfilePage() {
         mode: "onChange",
     });
 
-    useEffect(() => {
-        const currentUser = projectManagers.find(pm => pm.id === currentUserId);
-        if (currentUser) {
-            form.reset({
-                firstName: currentUser.firstName,
-                lastName: currentUser.lastName,
-                email: currentUser.email,
-                phone: currentUser.phone || '',
-                country: currentUser.country || 'co',
-                department: currentUser.department || '',
-                city: currentUser.city || ''
-            });
-        }
-    }, [form, currentUserId]);
-
     const selectedDepartment = form.watch("department");
     
     useEffect(() => {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
-            
-            const currentCity = form.getValues("city");
-            if (currentCity && !departmentCities.includes(currentCity)) {
-                // Do not reset city if it's already set from user data,
-                // only reset if the user changes the department manually.
-                // This check is tricky, so for now we let the effect run.
-                // A better approach would be to check if the change is user-initiated.
-            }
         } else {
             setCities([]);
         }
     }, [selectedDepartment, form]);
 
     function onSubmit(data: ProfileFormValues) {
-        const currentUser = projectManagers.find(pm => pm.id === currentUserId);
-
-        if (!currentUser) {
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "No se pudo encontrar el usuario para actualizar.",
-            });
-            return;
-        }
-
-        const userIndex = projectManagers.findIndex(pm => pm.id === currentUserId);
-        if (userIndex !== -1) {
-            projectManagers[userIndex] = {
-                ...currentUser,
-                ...data,
-            };
-        }
-        
         toast({
-            title: "Perfil Actualizado",
+            title: "Perfil Actualizado (Simulación)",
             description: "Tu información ha sido guardada exitosamente.",
         });
-        console.log("Profile data submitted and saved:", projectManagers[userIndex]);
+        console.log("Profile data submitted:", data);
     }
 
     return (
