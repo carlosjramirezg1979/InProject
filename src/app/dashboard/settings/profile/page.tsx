@@ -39,7 +39,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function ProfilePage() {
     const { toast } = useToast();
-    const { user, userProfile, reloadUserProfile } = useAuth();
+    const { user, userProfile, reloadUserProfile, loading } = useAuth();
     const [cities, setCities] = useState<string[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     
@@ -61,9 +61,12 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (userProfile) {
-            if (userProfile.department) {
-                setCities(getCitiesByDepartment(userProfile.department) || []);
-            }
+            // Step 1: Set the list of cities based on the profile's department
+            const profileCities = getCitiesByDepartment(userProfile.department || '') || [];
+            setCities(profileCities);
+
+            // Step 2: Reset the form with all the user profile data.
+            // This ensures that when the city field is set, its possible options are already available.
             form.reset({
                 firstName: userProfile.firstName || "",
                 lastName: userProfile.lastName || "",
@@ -81,14 +84,15 @@ export default function ProfilePage() {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
             
-            const currentCity = form.getValues('city');
-            if (currentCity && !departmentCities.includes(currentCity)) {
+            // If the department changes due to user interaction, reset the city field
+            // to ensure a valid selection.
+            if (userProfile && selectedDepartment !== userProfile.department) {
                  form.setValue('city', '');
             }
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form]);
+    }, [selectedDepartment, form, userProfile]);
 
 
     async function onSubmit(data: ProfileFormValues) {
@@ -115,6 +119,14 @@ export default function ProfilePage() {
         } finally {
             setIsSubmitting(false);
         }
+    }
+
+    if (loading) {
+        return (
+             <div className="flex h-64 items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        )
     }
 
     return (
