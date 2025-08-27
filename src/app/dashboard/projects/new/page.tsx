@@ -78,7 +78,6 @@ const defaultValues: Partial<NewProjectFormValues> = {
   sector: "",
 };
 
-
 export default function NewProjectPage() {
     const router = useRouter();
     const { toast } = useToast();
@@ -101,7 +100,6 @@ export default function NewProjectPage() {
             setValue('weeks', '');
         }
     }, [startDate, endDate, setValue]);
-
 
     function onSubmit(data: NewProjectFormValues) {
         console.log("New project data submitted:", data);
