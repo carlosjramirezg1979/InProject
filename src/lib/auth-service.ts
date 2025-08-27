@@ -1,3 +1,4 @@
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -11,6 +12,7 @@ import type { SignInFormValues, SignUpFormValues, ForgotPasswordFormValues } fro
 import { projectManagers } from './data';
 
 function getFirebaseAuthErrorMessage(error: any): string {
+    console.error("Firebase Auth Error:", error);
     if (error.code) {
       switch (error.code) {
         case 'auth/user-not-found':
@@ -35,19 +37,26 @@ export const signUp = async ({ firstName, lastName, email, password, phone }: Si
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     
-    await updateProfile(userCredential.user, {
-        displayName: `${firstName} ${lastName}`,
-    });
+    try {
+        await updateProfile(userCredential.user, {
+            displayName: `${firstName} ${lastName}`,
+        });
+    } catch (updateError) {
+        console.error("Error updating profile:", updateError);
+        // Even if profile update fails, we can still consider the user created.
+        // You might want to handle this differently, e.g., by deleting the user.
+    }
 
-    // Add user to the mock data array
-    projectManagers.push({
+    // Add user to the mock data array. In a real app, this would be an API call to your backend.
+    const newUser = {
         id: userCredential.user.uid,
         firstName,
         lastName,
         email,
         phone,
         companyIds: [], // Start with no companies
-    });
+    };
+    projectManagers.push(newUser);
     
     return { user: userCredential.user, error: null };
   } catch (error) {
