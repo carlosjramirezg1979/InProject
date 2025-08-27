@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/auth-context";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,36 +35,54 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-const defaultValues: Partial<ProfileFormValues> = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    country: "co",
-    department: undefined,
-    city: undefined,
-};
-
 export default function ProfilePage() {
     const { toast } = useToast();
+    const { user } = useAuth();
     const [cities, setCities] = useState<string[]>([]);
     
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
-        defaultValues,
+        defaultValues: {
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            country: "co",
+            department: undefined,
+            city: undefined,
+        },
         mode: "onChange",
     });
 
+    useEffect(() => {
+        if (user) {
+            const nameParts = user.displayName?.split(' ') || ['', ''];
+            const firstName = nameParts.slice(0, -1).join(' ');
+            const lastName = nameParts.slice(-1).join(' ');
+            
+            form.reset({
+                firstName: firstName,
+                lastName: lastName,
+                email: user.email || "",
+                phone: "",
+                country: "co",
+                department: undefined,
+                city: undefined,
+            })
+        }
+    }, [user, form]);
+    
     const selectedDepartment = form.watch("department");
     
     useEffect(() => {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
+            form.setValue('city', '');
         } else {
             setCities([]);
         }
-    }, [selectedDepartment]);
+    }, [selectedDepartment, form]);
 
     function onSubmit(data: ProfileFormValues) {
         toast({
@@ -173,7 +192,6 @@ export default function ProfilePage() {
                                     <FormLabel>Departamento</FormLabel>
                                         <Select onValueChange={(value) => {
                                             field.onChange(value);
-                                            form.setValue('city', '');
                                         }} value={field.value}>
                                             <FormControl>
                                             <SelectTrigger>
