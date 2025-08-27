@@ -1,0 +1,23 @@
+
+{
+  "rules": {
+    "projectManagers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "companies": {
+      "$companyId": {
+        ".read": "auth != null && root.child('projectManagers').child(auth.uid).child('companyIds').hasChild($companyId)"
+      }
+    },
+    "projects": {
+      "$projectId": {
+        ".read": "auth != null && root.child('projectManagers').child(auth.uid).child('companyIds').hasChild(data.child('companyId').val())",
+        "'.write'": "auth != null && data.child('projectManagerId').val() == auth.uid && root.child('projectManagers').child(auth.uid).child('companyIds').hasChild(data.child('companyId').val())",
+        ".validate": "newData.hasChildren(['id', 'name', 'description', 'companyId', 'projectManagerId', 'status'])"
+      }
+    }
+  }
+}

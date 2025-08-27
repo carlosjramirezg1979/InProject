@@ -32,7 +32,7 @@ export default function CompanyProjectsPage({ params }: { params: { id: string }
                 </p>
             </div>
         </div>
-        <NewProjectDialog />
+        <NewProjectDialog companyId={company.id} />
       </div>
 
       {projects && projects.length > 0 ? (

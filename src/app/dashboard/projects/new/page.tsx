@@ -9,7 +9,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon, ChevronLeft } from "lucide-react";
 import { differenceInWeeks } from 'date-fns';
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { doc, setDoc, collection } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
@@ -188,6 +188,8 @@ const defaultValues: Partial<NewProjectFormValues> = {
 
 export default function NewProjectPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const companyId = searchParams.get("companyId");
     const { toast } = useToast();
     const { user, userProfile } = useAuth();
     const [weeks, setWeeks] = React.useState('');
@@ -202,6 +204,17 @@ export default function NewProjectPage() {
     const startDate = form.watch('startDate');
     const endDate = form.watch('endDate');
     const selectedDepartment = form.watch("department");
+
+    React.useEffect(() => {
+        if (!companyId) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Falta el ID de la empresa. Vuelva a la página de la empresa e inténtelo de nuevo.",
+            });
+            router.push('/dashboard');
+        }
+    }, [companyId, router, toast]);
 
     React.useEffect(() => {
         if (startDate && endDate && endDate > startDate) {
@@ -234,12 +247,22 @@ export default function NewProjectPage() {
             return;
         }
 
+        if (!companyId) {
+             toast({
+                variant: "destructive",
+                title: "Error",
+                description: "ID de empresa no encontrado. No se puede crear el proyecto.",
+            });
+            return;
+        }
+
         try {
             const projectRef = doc(collection(db, "projects"));
             
             await setDoc(projectRef, {
                 ...data,
                 id: projectRef.id,
+                companyId: companyId,
                 projectManagerId: user.uid,
                 budget: parseFloat(data.budget),
                 status: {
@@ -255,13 +278,14 @@ export default function NewProjectPage() {
                 title: "Proyecto Creado",
                 description: "El nuevo proyecto ha sido guardado exitosamente.",
             });
-            router.push('/dashboard');
+            router.push(`/dashboard/company/${companyId}`);
         } catch (error) {
             console.error("Error creating project:", error);
+            const errorMessage = (error as Error)?.message || "No se pudo crear el proyecto. Inténtalo de nuevo.";
             toast({
                 variant: "destructive",
-                title: "Error",
-                description: "No se pudo crear el proyecto. Inténtalo de nuevo.",
+                title: "Error al crear el proyecto",
+                description: errorMessage,
             });
         }
     };
@@ -270,9 +294,9 @@ export default function NewProjectPage() {
         <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
             <div className="mb-6">
                 <Button asChild variant="ghost" className="mb-2">
-                    <Link href="/dashboard">
+                    <Link href={companyId ? `/dashboard/company/${companyId}` : "/dashboard"}>
                         <ChevronLeft className="mr-2 h-4 w-4" />
-                        Volver al Dashboard
+                        Volver
                     </Link>
                 </Button>
                 <div className="space-y-1">
@@ -605,7 +629,7 @@ export default function NewProjectPage() {
                                     render={({ field }) => (
                                         <FormItem>
                                         <FormLabel>Ciudad</FormLabel>
-                                            <Select onValueChange={field.onChange} value={field.value} disabled={cities.length === 0}>
+                                            <Select onValue-change={field.onChange} value={field.value} disabled={cities.length === 0}>
                                                 <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder={cities.length > 0 ? "Selecciona una ciudad" : "Selecciona un departamento primero"} />
@@ -754,7 +778,3 @@ export default function NewProjectPage() {
         </div>
     );
 }
-
-    
-
-    
