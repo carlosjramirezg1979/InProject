@@ -8,7 +8,8 @@ const firebaseConfig = {
   storageBucket: "projectwise-rtgmv.firebasestorage.app",
   apiKey: "AIzaSyD58K4lTHvpwkqYB0d1_eN2lu9zxOKPe18",
   authDomain: "projectwise-rtgmv.firebaseapp.com",
-  messagingSenderId: "997252467907"
+  messagingSenderId: "997252467907",
+  measurementId: "G-9XG82L69P2"
 };
 
 // Initialize Firebase
