@@ -58,7 +58,7 @@ export default function ProfilePage() {
     });
     
     const selectedDepartment = form.watch("department");
-    
+
     useEffect(() => {
         if (userProfile) {
             form.reset({
@@ -70,24 +70,19 @@ export default function ProfilePage() {
                 department: userProfile.department,
                 city: userProfile.city,
             });
+            if (userProfile.department) {
+                setCities(getCitiesByDepartment(userProfile.department) || []);
+            }
         }
     }, [userProfile, form]);
-
-    useEffect(() => {
-        const currentDepartment = form.getValues("department");
-        if (currentDepartment) {
-            const departmentCities = getCitiesByDepartment(currentDepartment) || [];
-            setCities(departmentCities);
-        } else {
-            setCities([]);
-        }
-    }, [form, userProfile]);
     
     useEffect(() => {
-        if (selectedDepartment && (selectedDepartment !== userProfile?.department)) {
+        if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
-            form.setValue('city', '');
+            if (selectedDepartment !== userProfile?.department) {
+                form.setValue('city', '');
+            }
         }
     }, [selectedDepartment, form, userProfile?.department]);
 
