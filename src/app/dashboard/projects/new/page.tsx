@@ -24,7 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -32,18 +32,100 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
 const projectSectors = [
-    "Proyectos de Infraestructura",
-    "Proyectos de Tecnología de la Información",
-    "Proyectos de Construcción y Desarrollo Inmobiliario",
-    "Proyectos de Investigación y Desarrollo (I+D)",
-    "Proyectos de Marketing y Publicidad",
-    "Proyectos de Educación y Capacitación",
-    "Proyectos de Salud y Medicina",
-    "Proyectos Ambientales",
-    "Proyectos de Desarrollo Comunitario y Social",
-    "Proyectos de Eventos y Entretenimiento",
-    "Proyectos de Defensa y Seguridad",
-    "Proyectos de Transporte y Logística",
+    {
+        label: "Proyectos de Infraestructura",
+        options: [
+            "Construcción de Obras Públicas: Carreteras, puentes, túneles, sistemas de transporte público.",
+            "Proyectos de Energía: Plantas de energía renovable (solar, eólica), centrales eléctricas, redes de distribución de energía.",
+            "Suministro de Agua y Saneamiento: Redes de agua potable, sistemas de tratamiento de aguas residuales.",
+        ]
+    },
+    {
+        label: "Proyectos de Tecnología de la Información",
+        options: [
+            "Desarrollo de Software: Aplicaciones móviles, sistemas de gestión empresarial (ERP), plataformas en la nube.",
+            "Implementación de Sistemas: Integración de nuevas tecnologías en organizaciones, sistemas de gestión de bases de datos.",
+            "Seguridad Cibernética: Desarrollo de soluciones para proteger datos y redes, auditorías de seguridad.",
+        ]
+    },
+    {
+        label: "Proyectos de Construcción y Desarrollo Inmobiliario",
+        options: [
+            "Construcción Residencial: Viviendas, apartamentos, complejos habitacionales.",
+            "Construcción Comercial: Oficinas, centros comerciales, hoteles.",
+            "Renovación y remodelación: Restauración de edificios históricos, renovación de espacios comerciales.",
+        ]
+    },
+    {
+        label: "Proyectos de Investigación y Desarrollo (I+D)",
+        options: [
+            "Innovación de Productos: Desarrollo de nuevos productos o mejoras en productos existentes.",
+            "Investigación Científica: Estudios y experimentos en campos como la biotecnología, la física, la medicina.",
+            "Desarrollo de Tecnologías: Creación de nuevas tecnologías o mejoras en las existentes.",
+        ]
+    },
+    {
+        label: "Proyectos de Marketing y Publicidad",
+        options: [
+            "Campañas Publicitarias: Publicidad en medios digitales, impresos, y televisivos.",
+            "Investigación de Mercado: Estudios sobre comportamientos y preferencias del consumidor.",
+            "Lanzamiento de Productos: Estrategias para introducir nuevos productos al mercado.",
+        ]
+    },
+    {
+        label: "Proyectos de Educación y Capacitación",
+        options: [
+            "Desarrollo de Material Educativo: Creación de libros de texto, cursos en línea.",
+            "Programas de Capacitación: Entrenamiento para habilidades específicas, desarrollo profesional.",
+            "Implementación de Tecnologías Educativas: Integración de herramientas tecnológicas en el proceso educativo.",
+        ]
+    },
+    {
+        label: "Proyectos de Salud y Medicina",
+        options: [
+            "Desarrollo de Nuevos Medicamentos: Investigación y pruebas clínicas de fármacos.",
+            "Construcción de Instalaciones de Salud: Nuevos hospitales, clínicas, centros de investigación médica.",
+            "Programas de Salud Pública: Iniciativas para combatir enfermedades, campañas de vacunación.",
+        ]
+    },
+    {
+        label: "Proyectos Ambientales",
+        options: [
+            "Conservación de la Naturaleza: Proyectos de reforestación, protección de hábitats.",
+            "Gestión de Residuos: Sistemas de reciclaje, tratamiento de residuos industriales.",
+            "Energía Limpia: Desarrollo y expansión de tecnologías energéticas sostenibles.",
+        ]
+    },
+    {
+        label: "Proyectos de Desarrollo Comunitario y Social",
+        options: [
+            "Programas de Reducción de Pobreza: Iniciativas para mejorar las condiciones de vida en comunidades desfavorecidas.",
+            "Proyectos de Infraestructura Social: Construcción de escuelas, centros comunitarios.",
+            "Empoderamiento y Desarrollo Comunitario: Capacitación y apoyo a grupos locales para fomentar el desarrollo económico y social.",
+        ]
+    },
+    {
+        label: "Proyectos de Eventos y Entretenimiento",
+        options: [
+            "Organización de Eventos: Conferencias, ferias, festivales.",
+            "Producción de Medios: Películas, programas de televisión, producciones musicales.",
+            "Desarrollo de Espacios de Entretenimiento: Parques temáticos, centros deportivos.",
+        ]
+    },
+    {
+        label: "Proyectos de Defensa y Seguridad",
+        options: [
+            "Desarrollo de Equipos de Defensa: Creación y mejora de tecnología militar.",
+            "Proyectos de Seguridad Nacional: Iniciativas para proteger infraestructuras críticas, respuesta a emergencias.",
+        ]
+    },
+    {
+        label: "Proyectos de Transporte y Logística",
+        options: [
+            "Infraestructura de Transporte: Construcción de redes de transporte, sistemas de gestión del tráfico.",
+            "Gestión de la Cadena de Suministro: Optimización de la logística, distribución de productos.",
+        ]
+    }
 ];
 
 const newProjectFormSchema = z.object({
@@ -320,8 +402,13 @@ export default function NewProjectPage() {
                                     </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                        {projectSectors.map((sector) => (
-                                            <SelectItem key={sector} value={sector}>{sector}</SelectItem>
+                                        {projectSectors.map((group) => (
+                                            <SelectGroup key={group.label}>
+                                                <SelectLabel>{group.label}</SelectLabel>
+                                                {group.options.map((option) => (
+                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                ))}
+                                            </SelectGroup>
                                         ))}
                                     </SelectContent>
                                 </Select>
@@ -356,4 +443,4 @@ export default function NewProjectPage() {
             </Card>
         </div>
     );
-    
+}
