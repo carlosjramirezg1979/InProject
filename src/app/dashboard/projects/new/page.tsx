@@ -205,7 +205,7 @@ export default function NewProjectPage() {
                                 </FormItem>
                             )}
                         />
-                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                             <FormField
                                 control={form.control}
                                 name="startDate"
@@ -285,20 +285,20 @@ export default function NewProjectPage() {
                                     </FormItem>
                                 )}
                             />
+                             <FormField
+                                control={form.control}
+                                name="weeks"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Tiempo en Semanas</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} readOnly placeholder="Se calcula automáticamente" />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                          </div>
-                         <FormField
-                            control={form.control}
-                            name="weeks"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Tiempo en Semanas</FormLabel>
-                                <FormControl>
-                                    <Input {...field} readOnly placeholder="Se calcula automáticamente" />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
                         <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-6 items-end">
                             <FormField
                                 control={form.control}
