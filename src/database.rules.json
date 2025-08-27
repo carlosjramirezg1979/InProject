@@ -1,6 +1,33 @@
+
 {
   "rules": {
-    ".read": "auth.uid != null",
-    ".write": "auth.uid != null"
+    "rules_version": "2",
+    "services": {
+      "cloud.firestore": {
+        "match": {
+          "databases": {
+            "{database}": {
+              "documents": {
+                "projectManagers": {
+                  "{userId}": {
+                    "allow": "read, update: if request.auth != null && request.auth.uid == userId;"
+                  }
+                },
+                "companies": {
+                  "{companyId}": {
+                    "allow": "read: if request.auth != null && companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds; create: if request.auth != null; update, delete: if false;"
+                  }
+                },
+                "projects": {
+                  "{projectId}": {
+                    "allow": "read, update: if request.auth != null && resource.data.projectManagerId == request.auth.uid; create: if request.auth != null; delete: if false;"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }

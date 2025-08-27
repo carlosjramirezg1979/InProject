@@ -1,21 +1,27 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Permitir acceso de lectura y escritura a cualquier usuario autenticado.
+    // Los usuarios pueden leer y actualizar su propio perfil.
     match /projectManagers/{userId} {
-      allow read, write: if request.auth != null;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Permitir acceso de lectura y escritura a cualquier usuario autenticado.
+    // Cualquiera puede crear una empresa si está autenticado.
+    // La lectura se permite si el ID de la empresa está en la lista del perfil del usuario.
     match /companies/{companyId} {
-      allow read, write: if request.auth != null;
+      allow read: if request.auth != null && companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds;
+      allow create: if request.auth != null;
+      allow update, delete: if false; // Por ahora se deshabilita la edición directa
     }
 
-    // Permitir acceso de lectura y escritura a cualquier usuario autenticado.
+    // Un usuario autenticado puede actualizar un proyecto (para añadir el companyId).
+    // La lectura se permite si el usuario es el gestor del proyecto.
     match /projects/{projectId} {
-      allow read, write: if request.auth != null;
+      allow read, update: if request.auth != null && resource.data.projectManagerId == request.auth.uid;
+      allow create: if request.auth != null; // Permitir creación de nuevos proyectos
+      allow delete: if false;
     }
   }
 }
