@@ -19,7 +19,7 @@ import { logOut } from '@/lib/auth-service';
 import { useToast } from '@/hooks/use-toast';
 
 export function UserNav() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -40,13 +40,19 @@ export function UserNav() {
     return null;
   }
 
+  const getInitials = (firstName?: string, lastName?: string) => {
+    const firstInitial = firstName?.charAt(0) || '';
+    const lastInitial = lastName?.charAt(0) || '';
+    return `${firstInitial}${lastInitial}`.toUpperCase() || 'U';
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
             <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'Usuario'} />
-            <AvatarFallback>{user.email?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
+            <AvatarFallback>{getInitials(userProfile?.firstName, userProfile?.lastName)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>

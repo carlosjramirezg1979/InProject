@@ -37,7 +37,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function ProfilePage() {
     const { toast } = useToast();
-    const { user } = useAuth();
+    const { userProfile } = useAuth();
     const [cities, setCities] = useState<string[]>([]);
     
     const form = useForm<ProfileFormValues>({
@@ -55,22 +55,18 @@ export default function ProfilePage() {
     });
 
     useEffect(() => {
-        if (user) {
-            const nameParts = user.displayName?.split(' ') || ['', ''];
-            const firstName = nameParts.slice(0, -1).join(' ');
-            const lastName = nameParts.slice(-1).join(' ');
-            
+        if (userProfile) {
             form.reset({
-                firstName: firstName,
-                lastName: lastName,
-                email: user.email || "",
-                phone: "",
-                country: "co",
-                department: undefined,
-                city: undefined,
+                firstName: userProfile.firstName || "",
+                lastName: userProfile.lastName || "",
+                email: userProfile.email || "",
+                phone: userProfile.phone || "",
+                country: userProfile.country || "co",
+                department: userProfile.department,
+                city: userProfile.city,
             })
         }
-    }, [user, form]);
+    }, [userProfile, form]);
     
     const selectedDepartment = form.watch("department");
     
@@ -78,7 +74,9 @@ export default function ProfilePage() {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
-            form.setValue('city', '');
+            if (!departmentCities.includes(form.getValues('city'))) {
+                form.setValue('city', '');
+            }
         } else {
             setCities([]);
         }
@@ -138,7 +136,7 @@ export default function ProfilePage() {
                                     <FormItem>
                                     <FormLabel>Dirección de Correo Electrónico</FormLabel>
                                     <FormControl>
-                                        <Input type="email" placeholder="Ej: usuario@ejemplo.com" {...field} />
+                                        <Input type="email" placeholder="Ej: usuario@ejemplo.com" {...field} readOnly />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
