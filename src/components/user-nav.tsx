@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, PlusCircle, Settings, User } from 'lucide-react';
+import { LogOut, PlusCircle, Settings, User, Building } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
@@ -59,7 +59,7 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.displayName ?? 'Usuario'}</p>
+            <p className="text-sm font-medium leading-none">{userProfile?.firstName} {userProfile?.lastName}</p>
             <p className="text-xs leading-none text-muted-foreground">
               {user.email}
             </p>
@@ -74,14 +74,16 @@ export function UserNav() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
+             <Link href="/dashboard/companies">
+                <Building className="mr-2 h-4 w-4" />
+                <span>Mis Empresas</span>
+            </Link>
+          </DropdownMenuItem>
+           <DropdownMenuItem asChild>
              <Link href="/dashboard/settings">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Configuración</span>
             </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <PlusCircle className="mr-2 h-4 w-4" />
-            <span>Nuevo Equipo</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
