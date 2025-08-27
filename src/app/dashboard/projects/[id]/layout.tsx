@@ -18,11 +18,11 @@ export default function ProjectLayout({
 
   return (
     <SidebarProvider>
-        <div className="flex flex-1">
+        <div className="flex-1 grid md:grid-cols-[auto_1fr]">
             <ProjectSidebar project={project} />
-            <SidebarInset className="flex-1 p-8 bg-muted/30">
+            <div className="bg-muted/30 p-8 overflow-auto">
                 {children}
-            </SidebarInset>
+            </div>
         </div>
     </SidebarProvider>
   );

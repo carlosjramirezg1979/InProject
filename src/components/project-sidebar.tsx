@@ -52,7 +52,7 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
   }
 
   return (
-    <Sidebar>
+    <Sidebar className="border-r h-full">
       <SidebarHeader>
         <Link href="/dashboard" className="w-full">
             <SidebarMenuButton size="sm" className="w-full justify-start">
