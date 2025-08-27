@@ -20,16 +20,23 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchProjects() {
-      if (!user || !userProfile || !userProfile.companyIds || userProfile.companyIds.length === 0) {
+      if (!user || !userProfile) {
+        setLoading(false);
+        return;
+      }
+
+      // If the user has no associated companies, there can't be any projects to show.
+      if (!userProfile.companyIds || userProfile.companyIds.length === 0) {
+        setProjects([]);
         setLoading(false);
         return;
       }
 
       try {
-        // Fetch all projects where the companyId is in the user's list of companyIds
-        // and the projectManagerId is the current user's uid.
+        // This query is now secure because it's constrained by the company IDs the user
+        // is allowed to see, which aligns with the Firestore security rules.
         const q = query(
-          collection(db, "projects"), 
+          collection(db, "projects"),
           where("companyId", "in", userProfile.companyIds),
           where("projectManagerId", "==", user.uid)
         );
@@ -48,6 +55,8 @@ export default function DashboardPage() {
 
       } catch (error) {
         console.error("Error fetching projects: ", error);
+        // Set projects to empty array on error to avoid showing stale data
+        setProjects([]);
       } finally {
         setLoading(false);
       }
@@ -55,6 +64,8 @@ export default function DashboardPage() {
 
     if (userProfile) {
         fetchProjects();
+    } else {
+        setLoading(false);
     }
   }, [user, userProfile]);
   
