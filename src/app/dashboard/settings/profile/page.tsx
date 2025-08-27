@@ -67,7 +67,10 @@ export default function ProfilePage() {
                 country: userProfile.country || "co",
                 department: userProfile.department,
                 city: userProfile.city,
-            })
+            });
+            if (userProfile.department) {
+                setCities(getCitiesByDepartment(userProfile.department) || []);
+            }
         }
     }, [userProfile, form]);
     
@@ -77,8 +80,9 @@ export default function ProfilePage() {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
+            // Only reset city if the department changed and the current city is not in the new list
             if (userProfile?.department !== selectedDepartment) {
-                if (!departmentCities.includes(form.getValues('city'))) {
+                 if (!departmentCities.includes(form.getValues('city'))) {
                     form.setValue('city', '');
                 }
             }
@@ -235,7 +239,7 @@ export default function ProfilePage() {
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>Ciudad</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value} disabled={cities.length === 0}>
+                                        <Select onValuechaange={field.onChange} value={field.value} disabled={cities.length === 0}>
                                             <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder={cities.length > 0 ? "Selecciona una ciudad" : "Selecciona un departamento primero"} />
