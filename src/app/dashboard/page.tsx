@@ -20,24 +20,17 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchProjects() {
-      if (!user || !userProfile) {
-        setLoading(false);
-        return;
-      }
-
-      // If the user has no associated companies, there can't be any projects to show.
-      if (!userProfile.companyIds || userProfile.companyIds.length === 0) {
+      if (!user) {
         setProjects([]);
         setLoading(false);
         return;
       }
 
       try {
-        // This query is now secure because it's constrained by the company IDs the user
-        // is allowed to see, which aligns with the Firestore security rules.
+        // This query is now secure because the security rules ensure
+        // a user can only read projects they are the manager of.
         const q = query(
           collection(db, "projects"),
-          where("companyId", "in", userProfile.companyIds),
           where("projectManagerId", "==", user.uid)
         );
         
@@ -62,12 +55,14 @@ export default function DashboardPage() {
       }
     }
 
-    if (userProfile) {
+    // We only need the user to be loaded, not necessarily the profile,
+    // as the query only depends on user.uid.
+    if (user) {
         fetchProjects();
     } else {
         setLoading(false);
     }
-  }, [user, userProfile]);
+  }, [user]);
   
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
