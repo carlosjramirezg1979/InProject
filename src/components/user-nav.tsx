@@ -11,7 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, Mail, MessageSquare, PlusCircle, Settings, User } from 'lucide-react';
+import { LogOut, PlusCircle, Settings, User } from 'lucide-react';
+import Link from 'next/link';
 
 export function UserNav() {
   return (
@@ -35,13 +36,17 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <User className="mr-2 h-4 w-4" />
-            <span>Perfil</span>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/settings/profile">
+              <User className="mr-2 h-4 w-4" />
+              <span>Perfil</span>
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Configuración</span>
+          <DropdownMenuItem asChild>
+             <Link href="/dashboard/settings/profile">
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Configuración</span>
+            </Link>
           </DropdownMenuItem>
           <DropdownMenuItem>
             <PlusCircle className="mr-2 h-4 w-4" />
