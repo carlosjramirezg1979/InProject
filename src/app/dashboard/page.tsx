@@ -68,7 +68,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <Button asChild>
-            <Link href="/dashboard/companies">
+            <Link href="/dashboard/projects/new">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Crear Nuevo Proyecto
             </Link>
@@ -89,11 +89,12 @@ export default function DashboardPage() {
         <div className="text-center py-16 border-dashed border-2 rounded-lg">
             <h2 className="text-xl font-semibold">No se encontraron proyectos</h2>
             <p className="text-muted-foreground mt-2">
-                Selecciona una empresa y crea un nuevo proyecto para comenzar.
+                Crea un nuevo proyecto para comenzar.
             </p>
              <Button asChild className="mt-4">
-                <Link href="/dashboard/companies">
-                    Ver Empresas
+                <Link href="/dashboard/projects/new">
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Crear Nuevo Proyecto
                 </Link>
             </Button>
         </div>
