@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from "react";
@@ -64,17 +65,6 @@ const newProjectFormSchema = z.object({
 
 type NewProjectFormValues = z.infer<typeof newProjectFormSchema>;
 
-const defaultValues: Partial<NewProjectFormValues> = {
-  name: "",
-  description: "",
-  justification: "",
-  generalObjective: "",
-  scope: "",
-  budget: "",
-  currency: "COP",
-  acceptanceCriteria: "",
-};
-
 export default function NewProjectPage() {
     const router = useRouter();
     const { toast } = useToast();
@@ -82,13 +72,21 @@ export default function NewProjectPage() {
 
     const form = useForm<NewProjectFormValues>({
         resolver: zodResolver(newProjectFormSchema),
-        defaultValues,
+        defaultValues: {
+            name: "",
+            description: "",
+            justification: "",
+            generalObjective: "",
+            scope: "",
+            budget: "",
+            currency: "COP",
+            acceptanceCriteria: "",
+        },
         mode: "onChange",
     });
 
-    const { watch } = form;
-    const startDate = watch('startDate');
-    const endDate = watch('endDate');
+    const startDate = form.watch('startDate');
+    const endDate = form.watch('endDate');
 
     React.useEffect(() => {
         if (startDate && endDate && endDate > startDate) {
@@ -319,7 +317,7 @@ export default function NewProjectPage() {
                                     <FormControl>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Seleccione un sector" />
-                                    </Trigger>
+                                    </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
                                         {projectSectors.map((sector) => (
@@ -358,4 +356,4 @@ export default function NewProjectPage() {
             </Card>
         </div>
     );
-}
+    
