@@ -13,24 +13,49 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { LogOut, PlusCircle, Settings, User } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/auth-context';
+import { logOut } from '@/lib/auth-service';
+import { useToast } from '@/hooks/use-toast';
 
 export function UserNav() {
+  const { user } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    const { success, error } = await logOut();
+    if (success) {
+      router.push('/login');
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: error,
+        });
+    }
+  };
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
-            <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" alt="@user" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'Usuario'} />
+            <AvatarFallback>{user.email?.charAt(0).toUpperCase() ?? 'U'}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Usuario</p>
+            <p className="text-sm font-medium leading-none">{user.displayName ?? 'Usuario'}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              usuario@ejemplo.com
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -43,7 +68,7 @@ export function UserNav() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-             <Link href="/dashboard/settings/profile">
+             <Link href="/dashboard/settings">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Configuración</span>
             </Link>
@@ -54,7 +79,7 @@ export function UserNav() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Cerrar sesión</span>
         </DropdownMenuItem>

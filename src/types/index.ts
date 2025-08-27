@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 export type ProjectPhase = 'initiation' | 'planning' | 'execution' | 'closing';
 export type PhaseStatus = 'locked' | 'not-started' | 'in-progress' | 'completed';
 
@@ -47,3 +49,20 @@ export type Risk = {
   mitigationStrategies: string[];
   relevantFactors: string[];
 };
+
+const signInSchema = z.object({
+    email: z.string().email(),
+    password: z.string(),
+});
+export type SignInFormValues = z.infer<typeof signInSchema>;
+
+const signUpSchema = z.object({
+    email: z.string().email(),
+    password: z.string(),
+});
+export type SignUpFormValues = z.infer<typeof signUpSchema>;
+
+const forgotPasswordSchema = z.object({
+    email: z.string().email(),
+});
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
