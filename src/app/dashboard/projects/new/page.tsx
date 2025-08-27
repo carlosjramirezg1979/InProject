@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from "react";
@@ -592,7 +593,7 @@ export default function NewProjectPage() {
                     <CardHeader>
                         <CardTitle>4. Patrocinador (Sponsor)</CardTitle>
                         <CardDescription>
-                            Identifica a la persona u organización que provee los recursos y el apoyo para el proyecto.
+                            Identifica a la persona que provee los recursos y el apoyo para el proyecto.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -604,7 +605,7 @@ export default function NewProjectPage() {
                                     <FormItem className="md:col-span-1">
                                     <FormLabel>Nombre del Patrocinador</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Ej: Innovaciones Tech S.A.S" {...field} />
+                                        <Input placeholder="Ej: Ana García" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -628,9 +629,9 @@ export default function NewProjectPage() {
                                 name="sponsorEmail"
                                 render={({ field }) => (
                                     <FormItem className="md:col-span-1">
-                                    <FormLabel>Correo Electrónico</FormLabel>
+                                    <FormLabel>Correo Electrónico de Contacto</FormLabel>
                                     <FormControl>
-                                        <Input type="email" placeholder="Ej: contacto@innovatech.com" {...field} />
+                                        <Input type="email" placeholder="Ej: ana.garcia@email.com" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -740,3 +741,5 @@ export default function NewProjectPage() {
     </div>
   );
 }
+
+    
