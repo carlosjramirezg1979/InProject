@@ -56,7 +56,9 @@ export default function ProfilePage() {
         },
         mode: "onChange",
     });
-
+    
+    const selectedDepartment = form.watch("department");
+    
     useEffect(() => {
         if (userProfile) {
             form.reset({
@@ -68,28 +70,27 @@ export default function ProfilePage() {
                 department: userProfile.department,
                 city: userProfile.city,
             });
-            if (userProfile.department) {
-                setCities(getCitiesByDepartment(userProfile.department) || []);
-            }
         }
     }, [userProfile, form]);
-    
-    const selectedDepartment = form.watch("department");
-    
+
     useEffect(() => {
-        if (selectedDepartment) {
-            const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
+        const currentDepartment = form.getValues("department");
+        if (currentDepartment) {
+            const departmentCities = getCitiesByDepartment(currentDepartment) || [];
             setCities(departmentCities);
-            // Only reset city if the department changed and the current city is not in the new list
-            if (userProfile?.department !== selectedDepartment) {
-                 if (!departmentCities.includes(form.getValues('city'))) {
-                    form.setValue('city', '');
-                }
-            }
         } else {
             setCities([]);
         }
+    }, [form, userProfile]);
+    
+    useEffect(() => {
+        if (selectedDepartment && (selectedDepartment !== userProfile?.department)) {
+            const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
+            setCities(departmentCities);
+            form.setValue('city', '');
+        }
     }, [selectedDepartment, form, userProfile?.department]);
+
 
     async function onSubmit(data: ProfileFormValues) {
         if (!user) {
@@ -239,7 +240,7 @@ export default function ProfilePage() {
                                 render={({ field }) => (
                                     <FormItem>
                                     <FormLabel>Ciudad</FormLabel>
-                                        <Select onValuechaange={field.onChange} value={field.value} disabled={cities.length === 0}>
+                                        <Select onValueChange={field.onChange} value={field.value} disabled={cities.length === 0}>
                                             <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder={cities.length > 0 ? "Selecciona una ciudad" : "Selecciona un departamento primero"} />
