@@ -62,9 +62,6 @@ export default function ProfilePage() {
     // Effect to populate form with profile data when it's loaded
     useEffect(() => {
         if (userProfile && user) {
-            const profileCities = getCitiesByDepartment(userProfile.department || '') || [];
-            setCities(profileCities);
-
             form.reset({
                 firstName: userProfile.firstName || "",
                 lastName: userProfile.lastName || "",
@@ -77,13 +74,13 @@ export default function ProfilePage() {
         }
     }, [userProfile, user, form]);
 
-    // Effect to handle department changes by the user
+    // Effect to handle department changes by the user, and to load initial cities
     useEffect(() => {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
             
-            // Only reset city if the current city is not in the new list of cities
+            // Only reset city if the user changes the department and the current city is not in the new list
             const currentCity = form.getValues('city');
             if (currentCity && !departmentCities.includes(currentCity)) {
                 form.setValue('city', '');
