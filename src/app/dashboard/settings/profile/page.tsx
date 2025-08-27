@@ -36,15 +36,14 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function ProfilePage() {
-  const { toast } = useToast();
-  // For now, we'll use a static ID, but in a real app this would come from the user session.
-  const currentUserId = 'pm-001';
-  
-  const currentUser = projectManagers.find(pm => pm.id === currentUserId);
+    const { toast } = useToast();
+    const [cities, setCities] = useState<string[]>([]);
+    
+    // For now, we'll use a static ID, but in a real app this would come from the user session.
+    const currentUserId = 'pm-001';
+    const currentUser = projectManagers.find(pm => pm.id === currentUserId);
 
-  const form = useForm<ProfileFormValues>({
-    resolver: zodResolver(profileFormSchema),
-    defaultValues: {
+    const defaultValues: Partial<ProfileFormValues> = {
         firstName: currentUser?.firstName || "",
         lastName: currentUser?.lastName || "",
         email: currentUser?.email || "",
@@ -52,205 +51,237 @@ export default function ProfilePage() {
         country: currentUser?.country || "co",
         department: currentUser?.department || "",
         city: currentUser?.city || "",
-    },
-    mode: "onChange",
-  });
+    };
 
-  const [cities, setCities] = useState<string[]>([]);
-  const selectedDepartment = form.watch("department");
-  
-  useEffect(() => {
-    if (selectedDepartment) {
-      const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
-      setCities(departmentCities);
-      
-      const currentCity = form.getValues("city");
-      // If the current city is not in the new list of cities, reset it.
-      if (currentCity && !departmentCities.includes(currentCity)) {
-        form.setValue("city", ""); 
-      }
-
-    } else {
-      setCities([]);
-    }
-  }, [selectedDepartment, form]);
-
-
-  function onSubmit(data: ProfileFormValues) {
-    const userIndex = projectManagers.findIndex(pm => pm.id === currentUserId);
-    if (userIndex !== -1) {
-      projectManagers[userIndex] = {
-        ...projectManagers[userIndex],
-        ...data,
-      };
-    }
-    
-    toast({
-        title: "Perfil Actualizado",
-        description: "Tu información ha sido guardada exitosamente.",
+    const form = useForm<ProfileFormValues>({
+        resolver: zodResolver(profileFormSchema),
+        defaultValues,
+        mode: "onChange",
     });
-    console.log("Profile data submitted and saved:", projectManagers[userIndex]);
-  }
 
-  return (
-    <div className="space-y-6">
-        <Card>
-            <CardHeader>
-                <CardTitle>Perfil de Usuario</CardTitle>
-                <CardDescription>
-                    Esta es la información que se mostrará públicamente.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                            control={form.control}
-                            name="firstName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Nombres</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Ej: Juan" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="lastName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Apellidos</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Ej: Pérez" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Dirección de Correo Electrónico</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Ej: usuario@ejemplo.com" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="phone"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Número de Celular</FormLabel>
-                                <FormControl>
-                                    <Input 
-                                        placeholder="Ej: 3001234567" 
-                                        {...field} 
-                                        onChange={(e) => {
-                                            const numericValue = e.target.value.replace(/\D/g, '');
-                                            field.onChange(numericValue);
-                                        }}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="country"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>País</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value} defaultValue="co">
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selecciona un país" />
-                                        </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="co">Colombia</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+    const selectedDepartment = form.watch("department");
+    
+    useEffect(() => {
+        if (selectedDepartment) {
+            const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
+            setCities(departmentCities);
+            
+            const currentCity = form.getValues("city");
+            if (currentCity && !departmentCities.includes(currentCity)) {
+                form.setValue("city", ""); 
+            }
+        } else {
+            setCities([]);
+        }
+    }, [selectedDepartment, form]);
+
+    useEffect(() => {
+        if (currentUser) {
+            form.reset(defaultValues);
+            if (currentUser.department) {
+                setCities(getCitiesByDepartment(currentUser.department) || []);
+            }
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentUser, form]);
+
+    function onSubmit(data: ProfileFormValues) {
+        if (!currentUser) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No se pudo encontrar el usuario para actualizar.",
+            });
+            return;
+        }
+
+        const userIndex = projectManagers.findIndex(pm => pm.id === currentUserId);
+        if (userIndex !== -1) {
+            projectManagers[userIndex] = {
+                ...currentUser,
+                ...data,
+            };
+        }
+        
+        toast({
+            title: "Perfil Actualizado",
+            description: "Tu información ha sido guardada exitosamente.",
+        });
+        console.log("Profile data submitted and saved:", projectManagers[userIndex]);
+    }
+
+    if (!currentUser) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Error</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p>No se pudo cargar el perfil del usuario.</p>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    return (
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Perfil de Usuario</CardTitle>
+                    <CardDescription>
+                        Esta es la información que se mostrará públicamente.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="firstName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Nombres</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Ej: Juan" {...field} />
+                                    </FormControl>
                                     <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="department"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Departamento</FormLabel>
-                                     <Select onValueChange={field.onChange} value={field.value}>
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selecciona un departamento" />
-                                        </Trigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                           {departments.map((dept) => (
-                                                <SelectItem key={dept.code} value={dept.code}>{dept.name}</SelectItem>
-                                           ))}
-                                        </SelectContent>
-                                    </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="city"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Ciudad</FormLabel>
-                                     <Select onValueChange={field.onChange} value={field.value} disabled={cities.length === 0}>
-                                        <FormControl>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Selecciona una ciudad" />
-                                        </Trigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                           {cities.map((city) => (
-                                                <SelectItem key={city} value={city}>{city}</SelectItem>
-                                           ))}
-                                        </SelectContent>
-                                    </Select>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="lastName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Apellidos</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Ej: Pérez" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Dirección de Correo Electrónico</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Ej: usuario@ejemplo.com" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Número de Celular</FormLabel>
+                                    <FormControl>
+                                        <Input 
+                                            placeholder="Ej: 3001234567" 
+                                            {...field} 
+                                            onChange={(e) => {
+                                                const numericValue = e.target.value.replace(/\D/g, '');
+                                                field.onChange(numericValue);
+                                            }}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="country"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>País</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value} defaultValue="co">
+                                            <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecciona un país" />
+                                            </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="co">Colombia</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="department"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Departamento</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value}>
+                                            <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Selecciona un departamento" />
+                                            </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                            {departments.map((dept) => (
+                                                    <SelectItem key={dept.code} value={dept.code}>{dept.name}</SelectItem>
+                                            ))}
+                                            </SelectContent>
+                                        </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="city"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Ciudad</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value} disabled={cities.length === 0}>
+                                            <FormControl>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder={cities.length > 0 ? "Selecciona una ciudad" : "Selecciona un departamento primero"} />
+                                            </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                            {cities.map((city) => (
+                                                    <SelectItem key={city} value={city}>{city}</SelectItem>
+                                            ))}
+                                            </SelectContent>
+                                        </Select>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        <Button type="submit">Actualizar Perfil</Button>
+                    </form>
+                    </Form>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Seguridad</CardTitle>
+                    <CardDescription>
+                        Gestiona la seguridad de tu cuenta.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div>
+                        <h3 className="text-lg font-medium">Contraseña</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Cambia tu contraseña para mantener tu cuenta segura.
+                        </p>
                     </div>
-                    <Button type="submit">Actualizar Perfil</Button>
-                </form>
-                </Form>
-            </CardContent>
-        </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>Seguridad</CardTitle>
-                <CardDescription>
-                    Gestiona la seguridad de tu cuenta.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div>
-                    <h3 className="text-lg font-medium">Contraseña</h3>
-                    <p className="text-sm text-muted-foreground">
-                        Cambia tu contraseña para mantener tu cuenta segura.
-                    </p>
-                </div>
-                <ChangePasswordDialog />
-            </CardContent>
-        </Card>
-    </div>
-  );
+                    <ChangePasswordDialog />
+                </CardContent>
+            </Card>
+        </div>
+    );
 }
