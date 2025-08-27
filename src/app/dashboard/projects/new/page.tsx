@@ -519,11 +519,8 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Entregables Principales</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={4} placeholder="Ej: 1. Plataforma de E-commerce funcional. 2. Manual de usuario. 3. Plan de marketing de lanzamiento." {...field} />
+                                        <Textarea rows={4} placeholder="Liste los 3-5 entregables más importantes del proyecto. Ej: 1. Plataforma de E-commerce funcional. 2. Manual de usuario. 3. Plan de marketing de lanzamiento." {...field} />
                                     </FormControl>
-                                     <FormDescription>
-                                        Liste los 3-5 entregables más importantes del proyecto.
-                                    </FormDescription>
                                     <FormMessage />
                                     </FormItem>
                                 )}
@@ -535,11 +532,8 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Supuestos</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={4} placeholder="Ej: La API de terceros estará disponible y documentada a tiempo." {...field} />
+                                        <Textarea rows={4} placeholder="¿Qué se da por sentado que será verdad para que el proyecto tenga éxito? Ej: La API de terceros estará disponible y documentada a tiempo." {...field} />
                                     </FormControl>
-                                     <FormDescription>
-                                        ¿Qué se da por sentado que será verdad para que el proyecto tenga éxito?
-                                    </FormDescription>
                                     <FormMessage />
                                     </FormItem>
                                 )}
@@ -551,11 +545,8 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Restricciones</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={4} placeholder="Ej: El proyecto debe cumplir con la normativa de protección de datos GDPR." {...field} />
+                                        <Textarea rows={4} placeholder="¿Existen limitaciones importantes más allá del tiempo y el costo? Ej: El proyecto debe cumplir con la normativa de protección de datos GDPR." {...field} />
                                     </FormControl>
-                                     <FormDescription>
-                                       ¿Existen limitaciones importantes más allá del tiempo y el costo?
-                                    </FormDescription>
                                     <FormMessage />
                                     </FormItem>
                                 )}
@@ -567,11 +558,8 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Riesgos de Alto Nivel</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={4} placeholder="Ej: Dependencia crítica en un único proveedor para la pasarela de pagos." {...field} />
+                                        <Textarea rows={4} placeholder="Identifique 2 o 3 riesgos principales evidentes desde el inicio. Ej: Dependencia crítica en un único proveedor para la pasarela de pagos." {...field} />
                                     </FormControl>
-                                     <FormDescription>
-                                        Identifique 2 o 3 riesgos principales evidentes desde el inicio.
-                                    </FormDescription>
                                     <FormMessage />
                                     </FormItem>
                                 )}
@@ -583,11 +571,8 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Criterios de Aceptación del Proyecto</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={5} placeholder="Ej: La plataforma debe procesar 100 transacciones por minuto y cargar en menos de 2 segundos." {...field} />
+                                        <Textarea rows={5} placeholder="Criterios medibles que determinan si el proyecto y sus entregables son aceptados. Ej: La plataforma debe procesar 100 transacciones por minuto y cargar en menos de 2 segundos." {...field} />
                                     </FormControl>
-                                    <FormDescription>
-                                    Criterios medibles que determinan si el proyecto y sus entregables son aceptados.
-                                    </FormDescription>
                                     <FormMessage />
                                     </FormItem>
                                 )}
@@ -599,11 +584,8 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Requisitos de Aprobación del Proyecto</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={4} placeholder="Ej: El éxito del proyecto será confirmado por el Comité de Dirección de TI tras una demostración final." {...field} />
+                                        <Textarea rows={4} placeholder="¿Qué constituye el éxito del proyecto y quién lo aprueba formalmente? Ej: El éxito del proyecto será confirmado por el Comité de Dirección de TI tras una demostración final." {...field} />
                                     </FormControl>
-                                     <FormDescription>
-                                        ¿Qué constituye el éxito del proyecto y quién lo aprueba formalmente?
-                                    </FormDescription>
                                     <FormMessage />
                                     </FormItem>
                                 )}
@@ -624,4 +606,4 @@ export default function NewProjectPage() {
     );
 }
 
-  
+    
