@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -106,11 +105,8 @@ export default function ProfilePage() {
                                 <FormItem>
                                 <FormLabel>Nombres</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Tus nombres" {...field} />
+                                    <Input placeholder="Tu nombre de pila" {...field} />
                                 </FormControl>
-                                <FormDescription>
-                                    Tu nombre de pila.
-                                </FormDescription>
                                 <FormMessage />
                                 </FormItem>
                             )}
@@ -124,9 +120,6 @@ export default function ProfilePage() {
                                 <FormControl>
                                     <Input placeholder="Tus apellidos" {...field} />
                                 </FormControl>
-                                 <FormDescription>
-                                    Tus apellidos.
-                                </FormDescription>
                                 <FormMessage />
                                 </FormItem>
                             )}
@@ -138,11 +131,8 @@ export default function ProfilePage() {
                                 <FormItem>
                                 <FormLabel>Dirección de Correo Electrónico</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Tu correo electrónico" {...field} />
+                                    <Input placeholder="Tu correo para notificaciones" {...field} />
                                 </FormControl>
-                                <FormDescription>
-                                    La dirección donde te llegarán las notificaciones.
-                                </FormDescription>
                                 <FormMessage />
                                 </FormItem>
                             )}
@@ -155,7 +145,7 @@ export default function ProfilePage() {
                                 <FormLabel>Número de Celular</FormLabel>
                                 <FormControl>
                                     <Input 
-                                        placeholder="Ej: 3001234567" 
+                                        placeholder="Ej: 3001234567 (sin indicativos ni espacios)" 
                                         {...field} 
                                         onChange={(e) => {
                                             const numericValue = e.target.value.replace(/\D/g, '');
@@ -163,9 +153,6 @@ export default function ProfilePage() {
                                         }}
                                     />
                                 </FormControl>
-                                 <FormDescription>
-                                    Tu número de contacto principal, sin indicativos ni espacios.
-                                </FormDescription>
                                 <FormMessage />
                                 </FormItem>
                             )}
@@ -186,9 +173,6 @@ export default function ProfilePage() {
                                             <SelectItem value="co">Colombia</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                     <FormDescription>
-                                       Actualmente, la plataforma solo está disponible en Colombia.
-                                    </FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
