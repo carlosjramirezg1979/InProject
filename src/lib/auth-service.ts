@@ -10,7 +10,6 @@ import {
 import { auth, db } from './firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import type { SignInFormValues, SignUpFormValues, ForgotPasswordFormValues } from '@/types';
-import { projectManagers } from './data';
 
 function getFirebaseAuthErrorMessage(error: any): string {
     console.error("Firebase Auth Error:", error);
@@ -89,3 +88,5 @@ export const resetPassword = async ({ email }: ForgotPasswordFormValues) => {
     return { success: false, error: getFirebaseAuthErrorMessage(error as AuthError) };
   }
 };
+
+    

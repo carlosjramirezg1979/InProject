@@ -10,6 +10,8 @@ import { es } from "date-fns/locale";
 import { CalendarIcon, ChevronLeft } from "lucide-react";
 import { differenceInWeeks } from 'date-fns';
 import { useRouter } from "next/navigation";
+import { doc, setDoc, collection } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +33,8 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
-import { projectManagers } from "@/lib/data";
+import { useAuth } from "@/context/auth-context";
+import { departments, getCitiesByDepartment } from "@/lib/locations";
 
 const projectSectors = [
     {
@@ -150,6 +153,9 @@ const newProjectFormSchema = z.object({
   mainDeliverables: z.string().min(10, "Los entregables deben tener al menos 10 caracteres."),
   approvalRequirements: z.string().min(10, "Los requisitos de aprobación deben tener al menos 10 caracteres."),
   acceptanceCriteria: z.string().min(10, "Los criterios de aceptación deben tener al menos 10 caracteres."),
+  country: z.string({ required_error: "El país es obligatorio." }),
+  department: z.string({ required_error: "El departamento es obligatorio." }),
+  city: z.string({ required_error: "La ciudad es obligatoria." }),
 }).refine(data => data.endDate > data.startDate, {
   message: "La fecha de fin debe ser posterior a la fecha de inicio.",
   path: ["endDate"],
@@ -174,17 +180,19 @@ const defaultValues: Partial<NewProjectFormValues> = {
     highLevelRisks: "",
     mainDeliverables: "",
     approvalRequirements: "",
+    country: "co",
+    department: undefined,
+    city: undefined,
 };
 
 
 export default function NewProjectPage() {
     const router = useRouter();
     const { toast } = useToast();
+    const { user, userProfile } = useAuth();
     const [weeks, setWeeks] = React.useState('');
+    const [cities, setCities] = React.useState<string[]>([]);
     
-    // For now, we'll assume a single project manager with ID 'pm-001'
-    const currentUser = projectManagers[0];
-
     const form = useForm<NewProjectFormValues>({
         resolver: zodResolver(newProjectFormSchema),
         defaultValues,
@@ -193,6 +201,7 @@ export default function NewProjectPage() {
 
     const startDate = form.watch('startDate');
     const endDate = form.watch('endDate');
+    const selectedDepartment = form.watch("department");
 
     React.useEffect(() => {
         if (startDate && endDate && endDate > startDate) {
@@ -202,14 +211,59 @@ export default function NewProjectPage() {
             setWeeks('');
         }
     }, [startDate, endDate]);
+    
+    React.useEffect(() => {
+        if (selectedDepartment) {
+            const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
+            setCities(departmentCities);
+            if (!departmentCities.includes(form.getValues('city'))) {
+                form.setValue('city', '');
+            }
+        } else {
+            setCities([]);
+        }
+    }, [selectedDepartment, form]);
 
-    const onSubmit = (data: NewProjectFormValues) => {
-        console.log("New project data submitted:", data);
-        toast({
-            title: "Proyecto Creado (Simulación)",
-            description: "El nuevo proyecto ha sido creado exitosamente.",
-        });
-        router.push('/dashboard');
+    const onSubmit = async (data: NewProjectFormValues) => {
+        if (!user || !userProfile) {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Debes iniciar sesión para crear un proyecto.",
+            });
+            return;
+        }
+
+        try {
+            const projectRef = doc(collection(db, "projects"));
+            
+            await setDoc(projectRef, {
+                ...data,
+                id: projectRef.id,
+                projectManagerId: user.uid,
+                budget: parseFloat(data.budget),
+                status: {
+                  initiation: 'in-progress',
+                  planning: 'not-started',
+                  execution: 'locked',
+                  closing: 'locked',
+                },
+                imageUrl: `https://picsum.photos/600/400?random=${projectRef.id}`
+            });
+
+            toast({
+                title: "Proyecto Creado",
+                description: "El nuevo proyecto ha sido guardado exitosamente.",
+            });
+            router.push('/dashboard');
+        } catch (error) {
+            console.error("Error creating project:", error);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "No se pudo crear el proyecto. Inténtalo de nuevo.",
+            });
+        }
     };
 
     return (
@@ -313,15 +367,15 @@ export default function NewProjectPage() {
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <FormLabel>Nombre del Gerente de Proyecto</FormLabel>
-                                    <Input readOnly value={`${currentUser.firstName} ${currentUser.lastName}`} />
+                                    <Input readOnly value={userProfile ? `${userProfile.firstName} ${userProfile.lastName}` : ''} />
                                 </div>
                                 <div className="space-y-2">
                                     <FormLabel>Correo Electrónico</FormLabel>
-                                    <Input readOnly value={currentUser.email} type="email" />
+                                    <Input readOnly value={user?.email || ''} type="email" />
                                 </div>
                                 <div className="space-y-2">
                                     <FormLabel>Número de Contacto</FormLabel>
-                                    <Input readOnly value={currentUser.phone} />
+                                    <Input readOnly value={userProfile?.phone || ''} />
                                 </div>
                             </div>
                         </div>
@@ -496,6 +550,80 @@ export default function NewProjectPage() {
                             />
                         </div>
 
+                        {/* Location */}
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-medium font-headline">Ubicación del Proyecto</h3>
+                            <Separator />
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <FormField
+                                    control={form.control}
+                                    name="country"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>País</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value} defaultValue="co">
+                                                <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Selecciona un país" />
+                                                </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                    <SelectItem value="co">Colombia</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="department"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Departamento</FormLabel>
+                                            <Select onValueChange={(value) => {
+                                                field.onChange(value);
+                                            }} value={field.value}>
+                                                <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Selecciona un departamento" />
+                                                </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                {departments.map((dept) => (
+                                                        <SelectItem key={dept.code} value={dept.code}>{dept.name}</SelectItem>
+                                                ))}
+                                                </SelectContent>
+                                            </Select>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="city"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                        <FormLabel>Ciudad</FormLabel>
+                                            <Select onValueChange={field.onChange} value={field.value} disabled={cities.length === 0}>
+                                                <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={cities.length > 0 ? "Selecciona una ciudad" : "Selecciona un departamento primero"} />
+                                                </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                {cities.map((city) => (
+                                                        <SelectItem key={city} value={city}>{city}</SelectItem>
+                                                ))}
+                                                </SelectContent>
+                                            </Select>
+                                        <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            </div>
+                        </div>
+
                         {/* Sector and Criteria */}
                         <div className="space-y-4">
                              <h3 className="text-lg font-medium font-headline">Clasificación y Criterios</h3>
@@ -626,3 +754,5 @@ export default function NewProjectPage() {
         </div>
     );
 }
+
+    

@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export type ProjectPhase = 'initiation' | 'planning' | 'execution' | 'closing';
@@ -17,8 +18,27 @@ export interface Project {
   imageUrl: string;
   companyId: string;
   status: ProjectStatus;
-  currency?: string;
-  budget?: number;
+  justification: string;
+  generalObjective: string;
+  scope: string;
+  startDate: Date;
+  endDate: Date;
+  budget: number;
+  currency: string;
+  sector: string;
+  sponsorName: string;
+  sponsorPhone?: string;
+  sponsorEmail: string;
+  assumptions: string;
+  constraints: string;
+  highLevelRisks: string;
+  mainDeliverables: string;
+  approvalRequirements: string;
+  acceptanceCriteria: string;
+  country: string;
+  department: string;
+  city: string;
+  projectManagerId: string;
 }
 
 export interface Company {
@@ -77,3 +97,5 @@ const forgotPasswordSchema = z.object({
     email: z.string().email(),
 });
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+
+    
