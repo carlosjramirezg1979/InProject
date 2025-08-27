@@ -91,6 +91,14 @@ export const getProjectsByCompanyId = (companyId: string): Project[] => {
     return projects.filter(project => project.companyId === companyId);
 }
 
+export const getProjectsByManagerId = (managerId: string): Project[] => {
+    const manager = projectManagers.find(pm => pm.id === managerId);
+    if (!manager) return [];
+
+    const companyIds = manager.companyIds;
+    return projects.filter(project => companyIds.includes(project.companyId));
+}
+
 export const getCompanyById = (id: string): Company | undefined => {
     return companies.find((company) => company.id === id);
 }
