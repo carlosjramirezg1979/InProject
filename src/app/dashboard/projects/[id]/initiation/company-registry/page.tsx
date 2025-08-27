@@ -27,6 +27,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { departments, getCitiesByDepartment } from "@/lib/locations";
+import { useAuth } from "@/context/auth-context";
+import { addCompanyAndAssociateWithProject } from "@/lib/company-service";
 
 const companySectors = [
     {
@@ -131,7 +133,7 @@ const companySectors = [
 ];
 
 const companyRegistrySchema = z.object({
-  companyName: z.string().min(1, "El nombre de la empresa es obligatorio."),
+  name: z.string().min(1, "El nombre de la empresa es obligatorio."),
   country: z.string({ required_error: "El país es obligatorio." }),
   department: z.string({ required_error: "El departamento es obligatorio." }),
   city: z.string({ required_error: "La ciudad es obligatoria." }),
@@ -139,7 +141,7 @@ const companyRegistrySchema = z.object({
   companyType: z.string({ required_error: "El tipo de empresa es obligatorio." }),
   address: z.string().min(1, "La dirección es obligatoria."),
   website: z.string().optional(),
-  description: z.string().optional(),
+  description: z.string().min(1, "La descripción es obligatoria."),
   sector: z.string({ required_error: "El sector es obligatorio." }),
   contactName: z.string().min(1, "El nombre del contacto es obligatorio."),
   contactEmail: z.string().email("Debe ser un correo electrónico válido."),
@@ -159,6 +161,7 @@ export default function CompanyRegistryPage() {
     const { toast } = useToast();
     const params = useParams();
     const projectId = params.id as string;
+    const { user, reloadUserProfile } = useAuth();
 
     const [project, setProject] = React.useState<Project | null>(null);
     const [loading, setLoading] = React.useState(true);
@@ -168,7 +171,7 @@ export default function CompanyRegistryPage() {
     const form = useForm<CompanyRegistryValues>({
         resolver: zodResolver(companyRegistrySchema),
         defaultValues: {
-            companyName: "",
+            name: "",
             country: "co",
             department: "",
             city: "",
@@ -245,16 +248,30 @@ export default function CompanyRegistryPage() {
     }, [selectedDepartment, form]);
 
     async function onSubmit(data: CompanyRegistryValues) {
+        if (!user || !project) {
+            toast({ variant: "destructive", title: "Error", description: "No se pudo identificar al usuario o al proyecto. Por favor, recargue la página."});
+            return;
+        }
         setIsSubmitting(true);
-        console.log(data);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setIsSubmitting(false);
-        toast({
-            title: "Empresa Registrada",
-            description: "La información de la empresa ha sido guardada exitosamente.",
-        });
-        // form.reset(); // We might not want to reset the form fully
+        
+        try {
+            await addCompanyAndAssociateWithProject(data, user.uid, project.id);
+            await reloadUserProfile();
+            toast({
+                title: "Empresa Registrada",
+                description: "La información de la empresa ha sido guardada y asociada al proyecto exitosamente.",
+            });
+        } catch (error) {
+            console.error("Error saving company:", error);
+            const errorMessage = error instanceof Error ? error.message : "Ocurrió un error desconocido.";
+            toast({
+                variant: "destructive",
+                title: "Error al Guardar",
+                description: `No se pudo guardar la empresa. ${errorMessage}`
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     }
     
     if (loading) {
@@ -285,7 +302,7 @@ export default function CompanyRegistryPage() {
                     <CardContent className="space-y-6">
                         <FormField
                             control={form.control}
-                            name="companyName"
+                            name="name"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Nombre de la Empresa *</FormLabel>

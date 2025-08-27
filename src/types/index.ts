@@ -1,4 +1,5 @@
 
+
 import { z } from 'zod';
 
 export type ProjectPhase = 'initiation' | 'planning' | 'execution' | 'closing';
@@ -45,9 +46,26 @@ export interface Company {
     id: string;
     name: string;
     description: string;
+    country: string;
+    department: string;
+    city: string;
+    address: string;
+    website?: string;
+    employeeCount: string;
+    companyType: string;
+    sector: string;
+    contactName: string;
+    contactEmail: string;
+    contactRole: string;
+    contactPhoneCountryCode: string;
+    contactPhoneNumber: string;
+    contactPhoneExtension?: string;
     projectIds: string[];
     ownerId: string;
 }
+
+export type CompanyFormData = Omit<Company, 'id' | 'projectIds' | 'ownerId'>;
+
 
 export interface ProjectManager {
     id: string;
@@ -97,7 +115,5 @@ const forgotPasswordSchema = z.object({
     email: z.string().email(),
 });
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
-
-    
 
     
