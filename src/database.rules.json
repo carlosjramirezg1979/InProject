@@ -3,17 +3,8 @@
     "databases": {
       "database": {
         "documents": {
-          "projectManagers/{userId}": {
-            "allow read, write": "request.auth != null && request.auth.uid == userId"
-          },
-          "companies/{companyId}": {
-            "allow read": "request.auth != null && companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds",
-            "allow write": "false"
-          },
-          "projects/{projectId}": {
-            "allow read": "request.auth != null && (resource.data.projectManagerId == request.auth.uid || resource.data.companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds)",
-            "allow create": "request.auth != null && request.resource.data.projectManagerId == request.auth.uid",
-            "allow update, delete": "false"
+          "{document=**}": {
+            "allow read, write": "request.auth != null"
           }
         }
       }
