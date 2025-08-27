@@ -35,23 +35,21 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+const defaultValues: Partial<ProfileFormValues> = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    country: "co",
+    department: "",
+    city: "",
+};
+
 export default function ProfilePage() {
     const { toast } = useToast();
     const [cities, setCities] = useState<string[]>([]);
     
-    // For now, we'll use a static ID, but in a real app this would come from the user session.
     const currentUserId = 'pm-001';
-    const currentUser = projectManagers.find(pm => pm.id === currentUserId);
-
-    const defaultValues: Partial<ProfileFormValues> = {
-        firstName: currentUser?.firstName || "",
-        lastName: currentUser?.lastName || "",
-        email: currentUser?.email || "",
-        phone: currentUser?.phone || "",
-        country: currentUser?.country || "co",
-        department: currentUser?.department || "",
-        city: currentUser?.city || "",
-    };
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
@@ -75,17 +73,9 @@ export default function ProfilePage() {
         }
     }, [selectedDepartment, form]);
 
-    useEffect(() => {
-        if (currentUser) {
-            form.reset(defaultValues);
-            if (currentUser.department) {
-                setCities(getCitiesByDepartment(currentUser.department) || []);
-            }
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentUser, form]);
-
     function onSubmit(data: ProfileFormValues) {
+        const currentUser = projectManagers.find(pm => pm.id === currentUserId);
+
         if (!currentUser) {
             toast({
                 variant: "destructive",
@@ -108,19 +98,6 @@ export default function ProfilePage() {
             description: "Tu información ha sido guardada exitosamente.",
         });
         console.log("Profile data submitted and saved:", projectManagers[userIndex]);
-    }
-
-    if (!currentUser) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Error</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p>No se pudo cargar el perfil del usuario.</p>
-                </CardContent>
-            </Card>
-        )
     }
 
     return (
@@ -169,7 +146,7 @@ export default function ProfilePage() {
                                     <FormItem>
                                     <FormLabel>Dirección de Correo Electrónico</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Ej: usuario@ejemplo.com" {...field} />
+                                        <Input type="email" placeholder="Ej: usuario@ejemplo.com" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
