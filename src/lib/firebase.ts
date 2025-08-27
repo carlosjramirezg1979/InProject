@@ -1,6 +1,7 @@
 
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
   projectId: "projectwise-rtgmv",
@@ -9,11 +10,11 @@ const firebaseConfig = {
   apiKey: "AIzaSyD58K4lTHvpwkqYB0d1_eN2lu9zxOKPe18",
   authDomain: "projectwise-rtgmv.firebaseapp.com",
   messagingSenderId: "997252467907",
-  measurementId: "G-9XG82L69P2"
 };
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-export { app, auth };
+export { app, auth, db };

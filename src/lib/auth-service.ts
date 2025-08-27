@@ -7,7 +7,8 @@ import {
   updateProfile,
   AuthError,
 } from 'firebase/auth';
-import { auth } from './firebase';
+import { auth, db } from './firebase';
+import { doc, setDoc } from 'firebase/firestore';
 import type { SignInFormValues, SignUpFormValues, ForgotPasswordFormValues } from '@/types';
 import { projectManagers } from './data';
 
@@ -36,27 +37,22 @@ function getFirebaseAuthErrorMessage(error: any): string {
 export const signUp = async ({ firstName, lastName, email, password, phone }: SignUpFormValues) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    
-    try {
-        await updateProfile(userCredential.user, {
-            displayName: `${firstName} ${lastName}`,
-        });
-    } catch (updateError) {
-        console.error("Error updating profile:", updateError);
-        // Even if profile update fails, we can still consider the user created.
-        // You might want to handle this differently, e.g., by deleting the user.
-    }
+    const user = userCredential.user;
 
-    // Add user to the mock data array. In a real app, this would be an API call to your backend.
-    const newUser = {
-        id: userCredential.user.uid,
+    // Update Firebase Auth profile
+    await updateProfile(user, {
+        displayName: `${firstName} ${lastName}`,
+    });
+
+    // Create a document in Firestore 'projectManagers' collection
+    await setDoc(doc(db, "projectManagers", user.uid), {
+        id: user.uid,
         firstName,
         lastName,
         email,
-        phone,
-        companyIds: [], // Start with no companies
-    };
-    projectManagers.push(newUser);
+        phone: phone || '',
+        companyIds: [],
+    });
     
     return { user: userCredential.user, error: null };
   } catch (error) {
