@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -34,24 +35,24 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-// Get the current user's profile, assuming the first manager for this example.
-const currentUser = projectManagers[0];
-
-const defaultValues: Partial<ProfileFormValues> = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  country: "co",
-  department: "",
-  city: "",
-};
-
 export default function ProfilePage() {
   const { toast } = useToast();
+  // For now, we'll use a static ID, but in a real app this would come from the user session.
+  const currentUserId = 'pm-001';
+  
+  const currentUser = projectManagers.find(pm => pm.id === currentUserId);
+
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
-    defaultValues,
+    defaultValues: {
+        firstName: currentUser?.firstName || "",
+        lastName: currentUser?.lastName || "",
+        email: currentUser?.email || "",
+        phone: currentUser?.phone || "",
+        country: currentUser?.country || "co",
+        department: currentUser?.department || "",
+        city: currentUser?.city || "",
+    },
     mode: "onChange",
   });
 
@@ -60,8 +61,15 @@ export default function ProfilePage() {
   
   useEffect(() => {
     if (selectedDepartment) {
-      setCities(getCitiesByDepartment(selectedDepartment) || []);
-      form.setValue("city", ""); // Reset city when department changes
+      const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
+      setCities(departmentCities);
+      
+      const currentCity = form.getValues("city");
+      // If the current city is not in the new list of cities, reset it.
+      if (currentCity && !departmentCities.includes(currentCity)) {
+        form.setValue("city", ""); 
+      }
+
     } else {
       setCities([]);
     }
@@ -69,14 +77,11 @@ export default function ProfilePage() {
 
 
   function onSubmit(data: ProfileFormValues) {
-    // In a real app, you'd call an API. Here, we'll "update" the mock data.
-    const userIndex = projectManagers.findIndex(pm => pm.id === currentUser.id);
+    const userIndex = projectManagers.findIndex(pm => pm.id === currentUserId);
     if (userIndex !== -1) {
       projectManagers[userIndex] = {
         ...projectManagers[userIndex],
         ...data,
-        firstName: data.firstName || projectManagers[userIndex].firstName,
-        lastName: data.lastName || projectManagers[userIndex].lastName,
       };
     }
     
@@ -165,7 +170,7 @@ export default function ProfilePage() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>País</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <Select onValueChange={field.onChange} value={field.value} defaultValue="co">
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecciona un país" />
@@ -185,7 +190,7 @@ export default function ProfilePage() {
                             render={({ field }) => (
                                 <FormItem>
                                 <FormLabel>Departamento</FormLabel>
-                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                     <Select onValueChange={field.onChange} value={field.value}>
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecciona un departamento" />
