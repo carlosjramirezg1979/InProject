@@ -1,16 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function ClosingPage() {
+export default function BudgetPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Fase de Cierre</CardTitle>
+        <CardTitle className="font-headline text-2xl">Presupuesto y Costos</CardTitle>
         <CardDescription>
-          Finalización y archivo de toda la documentación y entregables del proyecto.
+          Estimación y gestión de los costos y el presupuesto del proyecto.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Contenido de Cierre...</p>
+        <p>Contenido del presupuesto y costos...</p>
       </CardContent>
     </Card>
   );

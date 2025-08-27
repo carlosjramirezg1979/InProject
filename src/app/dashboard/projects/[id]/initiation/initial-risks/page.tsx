@@ -1,16 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function ClosingPage() {
+export default function InitialRisksPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Fase de Cierre</CardTitle>
+        <CardTitle className="font-headline text-2xl">Riesgos Iniciales</CardTitle>
         <CardDescription>
-          Finalización y archivo de toda la documentación y entregables del proyecto.
+          Registro de los riesgos identificados en la fase de inicio del proyecto.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Contenido de Cierre...</p>
+        <p>Contenido de riesgos iniciales...</p>
       </CardContent>
     </Card>
   );

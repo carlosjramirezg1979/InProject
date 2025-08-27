@@ -1,16 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function ClosingPage() {
+export default function QualityPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Fase de Cierre</CardTitle>
+        <CardTitle className="font-headline text-2xl">Gestión de la Calidad</CardTitle>
         <CardDescription>
-          Finalización y archivo de toda la documentación y entregables del proyecto.
+          Definición de los estándares de calidad y cómo se medirán y asegurarán.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Contenido de Cierre...</p>
+        <p>Contenido de la gestión de la calidad...</p>
       </CardContent>
     </Card>
   );

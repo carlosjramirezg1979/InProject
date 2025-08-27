@@ -1,16 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function ClosingPage() {
+export default function TeamPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="font-headline text-2xl">Fase de Cierre</CardTitle>
+        <CardTitle className="font-headline text-2xl">Equipo del Proyecto</CardTitle>
         <CardDescription>
-          Finalización y archivo de toda la documentación y entregables del proyecto.
+          Gestión de los miembros del equipo, roles y responsabilidades.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p>Contenido de Cierre...</p>
+        <p>Contenido del equipo del proyecto...</p>
       </CardContent>
     </Card>
   );
