@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from "react";
@@ -355,7 +354,7 @@ export default function NewProjectPage() {
                                         <Textarea rows={5} placeholder="Ej: La plataforma debe procesar 100 transacciones por minuto y cargar en menos de 2 segundos." {...field} />
                                     </FormControl>
                                     <FormDescription>
-                                    Asegura que las expectativas estén alineadas entre el cliente y el equipo.
+                                    Asegura que las expectativas estén alineadas entre el cliente y el equipo del proyecto.
                                     </FormDescription>
                                     <FormMessage />
                                     </FormItem>
