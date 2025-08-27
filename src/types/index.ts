@@ -29,8 +29,13 @@ export interface Company {
 
 export interface ProjectManager {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
+    phone?: string;
+    country?: string;
+    department?: string;
+    city?: string;
     companyIds: string[];
 }
 

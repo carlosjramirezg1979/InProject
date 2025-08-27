@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
+import { projectManagers } from "@/lib/data";
 
 const projectSectors = [
     {
@@ -180,6 +181,9 @@ export default function NewProjectPage() {
     const router = useRouter();
     const { toast } = useToast();
     const [weeks, setWeeks] = React.useState('');
+    
+    // For now, we'll assume a single project manager with ID 'pm-001'
+    const currentUser = projectManagers[0];
 
     const form = useForm<NewProjectFormValues>({
         resolver: zodResolver(newProjectFormSchema),
@@ -265,7 +269,7 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Justificación del proyecto</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={5} placeholder="¿Por qué se debe hacer este proyecto y cómo se alinea con los objetivos de la organización? Ej: Aumentar las ventas en línea en un 30% y mejorar la experiencia del usuario." />
+                                        <Textarea rows={5} placeholder="¿Por qué se debe hacer este proyecto y cómo se alinea con los objetivos de la organización? Ej: Aumentar las ventas en línea en un 30% y mejorar la experiencia del usuario." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -278,7 +282,7 @@ export default function NewProjectPage() {
                                     <FormItem>
                                     <FormLabel>Objetivo General</FormLabel>
                                     <FormControl>
-                                        <Textarea rows={4} placeholder="Este objetivo se refinará más adelante bajo la metodología SMART. Ej: Desarrollar e implementar una plataforma de e-commerce funcional y escalable." />
+                                        <Textarea rows={4} placeholder="Este objetivo se refinará más adelante bajo la metodología SMART. Ej: Desarrollar e implementar una plataforma de e-commerce funcional y escalable." {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -309,15 +313,15 @@ export default function NewProjectPage() {
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
                                     <FormLabel>Nombre del Gerente de Proyecto</FormLabel>
-                                    <Input readOnly value="Usuario Ejemplo" />
+                                    <Input readOnly value={`${currentUser.firstName} ${currentUser.lastName}`} />
                                 </div>
                                 <div className="space-y-2">
                                     <FormLabel>Correo Electrónico</FormLabel>
-                                    <Input readOnly value="usuario@ejemplo.com" type="email" />
+                                    <Input readOnly value={currentUser.email} type="email" />
                                 </div>
                                 <div className="space-y-2">
                                     <FormLabel>Número de Contacto</FormLabel>
-                                    <Input readOnly value="3001234567" />
+                                    <Input readOnly value={currentUser.phone} />
                                 </div>
                             </div>
                         </div>

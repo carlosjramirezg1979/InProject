@@ -20,6 +20,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChangePasswordDialog } from "@/components/change-password-dialog";
 import { departments, getCitiesByDepartment } from "@/lib/locations";
+import { projectManagers } from "@/lib/data";
+import { useToast } from "@/hooks/use-toast";
 
 const profileFormSchema = z.object({
   firstName: z.string().min(1, "El nombre es obligatorio."),
@@ -33,17 +35,21 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
+// Get the current user's profile, assuming the first manager for this example.
+const currentUser = projectManagers[0];
+
 const defaultValues: Partial<ProfileFormValues> = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  country: "co",
-  department: "",
-  city: "",
+  firstName: currentUser.firstName,
+  lastName: currentUser.lastName,
+  email: currentUser.email,
+  phone: currentUser.phone || "",
+  country: currentUser.country || "co",
+  department: currentUser.department || "",
+  city: currentUser.city || "",
 };
 
 export default function ProfilePage() {
+  const { toast } = useToast();
   const form = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
     defaultValues,
@@ -64,8 +70,20 @@ export default function ProfilePage() {
 
 
   function onSubmit(data: ProfileFormValues) {
-    console.log("Profile data submitted:", data);
-    // Here you would typically call a server action or API to update the user's profile
+    // In a real app, you'd call an API. Here, we'll "update" the mock data.
+    const userIndex = projectManagers.findIndex(pm => pm.id === currentUser.id);
+    if (userIndex !== -1) {
+      projectManagers[userIndex] = {
+        ...projectManagers[userIndex],
+        ...data
+      };
+    }
+    
+    toast({
+        title: "Perfil Actualizado",
+        description: "Tu información ha sido guardada exitosamente.",
+    });
+    console.log("Profile data submitted and saved:", projectManagers[userIndex]);
   }
 
   return (

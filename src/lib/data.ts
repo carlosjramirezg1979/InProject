@@ -4,8 +4,10 @@ import type { Project, Company, ProjectManager } from '@/types';
 export const projectManagers: ProjectManager[] = [
   {
     id: 'pm-001',
-    name: 'Usuario Ejemplo',
+    firstName: 'Usuario',
+    lastName: 'Ejemplo',
     email: 'usuario@ejemplo.com',
+    phone: '3001234567',
     companyIds: ['comp-a', 'comp-b'],
   },
 ];
