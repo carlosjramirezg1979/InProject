@@ -16,11 +16,11 @@ service cloud.firestore {
       allow update, delete: if false; // Por ahora se deshabilita la edición directa
     }
 
-    // Un usuario autenticado puede actualizar un proyecto (para añadir el companyId).
-    // La lectura se permite si el usuario es el gestor del proyecto.
+    // Un usuario autenticado puede crear proyectos.
+    // Puede leer y actualizar un proyecto si es el gestor de ese proyecto.
     match /projects/{projectId} {
-      allow read, update: if request.auth != null && resource.data.projectManagerId == request.auth.uid;
-      allow create: if request.auth != null; // Permitir creación de nuevos proyectos
+      allow create: if request.auth != null;
+      allow read, update: if request.auth != null && get(/databases/$(database)/documents/projects/$(projectId)).data.projectManagerId == request.auth.uid;
       allow delete: if false;
     }
   }

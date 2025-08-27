@@ -20,7 +20,7 @@
                 },
                 "projects": {
                   "{projectId}": {
-                    "allow": "read, update: if request.auth != null && resource.data.projectManagerId == request.auth.uid; create: if request.auth != null; delete: if false;"
+                    "allow": "create: if request.auth != null; read, update: if request.auth != null && get(/databases/$(database)/documents/projects/$(projectId)).data.projectManagerId == request.auth.uid; delete: if false;"
                   }
                 }
               }
