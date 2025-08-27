@@ -19,8 +19,10 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { signUp } from '@/lib/auth-service';
+import { departments, getCitiesByDepartment } from "@/lib/locations";
 import type { SignUpFormValues } from '@/types';
 
 const formSchema = z.object({
@@ -30,6 +32,9 @@ const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, introduce un correo electrónico válido.' }),
   password: z.string().min(6, { message: 'La contraseña debe tener al menos 6 caracteres.' }),
   confirmPassword: z.string(),
+  country: z.string({ required_error: "El país es obligatorio." }),
+  department: z.string({ required_error: "El departamento es obligatorio." }),
+  city: z.string({ required_error: "La ciudad es obligatoria." }),
 }).refine(data => data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden.",
     path: ["confirmPassword"],
@@ -41,6 +46,7 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const [cities, setCities] = React.useState<string[]>([]);
 
   const form = useForm<SignUpFormValues>({
     resolver: zodResolver(formSchema),
@@ -51,8 +57,25 @@ export default function SignUpPage() {
       email: '',
       password: '',
       confirmPassword: '',
+      country: "co",
+      department: undefined,
+      city: undefined,
     },
   });
+
+  const selectedDepartment = form.watch("department");
+    
+  React.useEffect(() => {
+      if (selectedDepartment) {
+          const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
+          setCities(departmentCities);
+          if (!departmentCities.includes(form.getValues('city'))) {
+              form.setValue('city', '');
+          }
+      } else {
+          setCities([]);
+      }
+  }, [selectedDepartment, form]);
 
   const onSubmit = async (values: SignUpFormValues) => {
     setIsLoading(true);
@@ -75,7 +98,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-background px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
             <GanttChart className="mx-auto h-12 w-12 text-primary" />
@@ -152,6 +175,54 @@ export default function SignUpPage() {
                     </FormItem>
                 )}
             />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                    control={form.control}
+                    name="department"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Departamento</FormLabel>
+                            <Select onValueChange={(value) => {
+                                field.onChange(value);
+                            }} value={field.value}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Selecciona un departamento" />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                {departments.map((dept) => (
+                                        <SelectItem key={dept.code} value={dept.code}>{dept.name}</SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Ciudad</FormLabel>
+                            <Select onValueChange={field.onChange} value={field.value} disabled={cities.length === 0}>
+                                <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder={cities.length > 0 ? "Selecciona una ciudad" : "Selecciona un departamento"} />
+                                </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                {cities.map((city) => (
+                                        <SelectItem key={city} value={city}>{city}</SelectItem>
+                                ))}
+                                </SelectContent>
+                            </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                />
+            </div>
             <FormField
               control={form.control}
               name="password"

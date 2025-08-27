@@ -34,7 +34,7 @@ function getFirebaseAuthErrorMessage(error: any): string {
   }
   
 
-export const signUp = async ({ firstName, lastName, email, password, phone }: SignUpFormValues) => {
+export const signUp = async ({ firstName, lastName, email, password, phone, country, department, city }: SignUpFormValues) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -51,6 +51,9 @@ export const signUp = async ({ firstName, lastName, email, password, phone }: Si
         lastName,
         email,
         phone: phone || '',
+        country,
+        department,
+        city,
         companyIds: [],
     });
     
