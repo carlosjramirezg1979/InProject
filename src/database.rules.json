@@ -28,8 +28,11 @@ service cloud.firestore {
       allow read: if request.auth != null 
                   && resource.data.companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds;
 
-      // La creación de un proyecto se permite si el usuario está autenticado y es el dueño del proyecto.
-      allow create: if request.auth != null && request.resource.data.projectManagerId == request.auth.uid;
+      // La creación de un proyecto se permite si el usuario está autenticado, 
+      // es el dueño del proyecto y pertenece a la compañía del proyecto.
+      allow create: if request.auth != null 
+                    && request.resource.data.projectManagerId == request.auth.uid
+                    && request.resource.data.companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds;
       
       // La actualización y eliminación se dejan restringidas por ahora.
       allow update, delete: if false;
