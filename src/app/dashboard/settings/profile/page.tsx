@@ -27,12 +27,22 @@ const profileFormSchema = z.object({
   lastName: z.string().min(1, "El apellido es obligatorio."),
   email: z.string().email("Por favor, introduce una dirección de correo electrónico válida."),
   phone: z.string().optional(),
-  country: z.string().optional(),
-  department: z.string().optional(),
-  city: z.string().optional(),
+  country: z.string({ required_error: "El país es obligatorio." }),
+  department: z.string({ required_error: "El departamento es obligatorio." }),
+  city: z.string({ required_error: "La ciudad es obligatoria." }),
 });
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
+
+const defaultValues: Partial<ProfileFormValues> = {
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    country: "co",
+    department: undefined,
+    city: undefined,
+};
 
 export default function ProfilePage() {
     const { toast } = useToast();
@@ -40,15 +50,7 @@ export default function ProfilePage() {
     
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
-        defaultValues: {
-            firstName: "",
-            lastName: "",
-            email: "",
-            phone: "",
-            country: "co",
-            department: "",
-            city: "",
-        },
+        defaultValues,
         mode: "onChange",
     });
 
@@ -61,7 +63,7 @@ export default function ProfilePage() {
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form]);
+    }, [selectedDepartment]);
 
     function onSubmit(data: ProfileFormValues) {
         toast({
