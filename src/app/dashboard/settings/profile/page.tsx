@@ -83,14 +83,15 @@ export default function ProfilePage() {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
             
-            // Only reset city if the department change is an interaction, not on initial load.
-            if (userProfile && selectedDepartment !== userProfile.department) {
-                 form.setValue('city', '');
+            // Only reset city if the current city is not in the new list of cities
+            const currentCity = form.getValues('city');
+            if (currentCity && !departmentCities.includes(currentCity)) {
+                form.setValue('city', '');
             }
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form, userProfile]);
+    }, [selectedDepartment, form]);
 
 
     async function onSubmit(data: ProfileFormValues) {
