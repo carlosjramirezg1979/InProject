@@ -18,7 +18,7 @@ export default function ProjectLayout({
 
   return (
     <SidebarProvider>
-        <div className="flex">
+        <div className="flex min-h-[calc(100vh-theme(height.16))]">
             <ProjectSidebar project={project} />
             <SidebarInset className="flex-1 p-8 bg-muted/30">
                 {children}
