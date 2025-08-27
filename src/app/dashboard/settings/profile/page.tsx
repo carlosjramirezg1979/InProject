@@ -61,6 +61,11 @@ export default function ProfilePage() {
 
     useEffect(() => {
         if (userProfile) {
+            // First, set the list of cities based on the user's saved department
+            if (userProfile.department) {
+                setCities(getCitiesByDepartment(userProfile.department) || []);
+            }
+            // Then, reset the form with all the user profile data
             form.reset({
                 firstName: userProfile.firstName || "",
                 lastName: userProfile.lastName || "",
@@ -70,9 +75,6 @@ export default function ProfilePage() {
                 department: userProfile.department,
                 city: userProfile.city,
             });
-            if (userProfile.department) {
-                setCities(getCitiesByDepartment(userProfile.department) || []);
-            }
         }
     }, [userProfile, form]);
     
@@ -80,9 +82,12 @@ export default function ProfilePage() {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
+            // Reset city only if the department changes from the one in the profile
             if (selectedDepartment !== userProfile?.department) {
                 form.setValue('city', '');
             }
+        } else {
+            setCities([]);
         }
     }, [selectedDepartment, form, userProfile?.department]);
 
