@@ -142,7 +142,7 @@ const newProjectFormSchema = z.object({
   startDate: z.date({ required_error: "La fecha de inicio es obligatoria." }),
   endDate: z.date({ required_error: "La fecha de fin es obligatoria." }),
   budget: z.string().regex(/^\d+$/, "El presupuesto debe ser un valor numérico."),
-  currency: z.string(),
+  currency: z.string({ required_error: "La moneda es obligatoria." }),
   sector: z.string({ required_error: "Debe seleccionar un sector." }),
   sponsorName: z.string().min(3, "El nombre del patrocinador es obligatorio."),
   sponsorPhone: z.string().optional(),
@@ -754,5 +754,7 @@ export default function NewProjectPage() {
         </div>
     );
 }
+
+    
 
     
