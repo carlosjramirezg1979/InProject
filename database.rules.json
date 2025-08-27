@@ -1,31 +1,35 @@
-{
-  "rules": {
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
     // Los perfiles de usuario solo son legibles y escribibles por el propio usuario.
-    "projectManagers": {
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
-      }
-    },
+    match /projectManagers/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
     // Los datos de las empresas son legibles por los usuarios que pertenecen a ellas.
-    "companies": {
-      "$companyId": {
-        ".read": "auth != null && root.child('projectManagers').child(auth.uid).child('companyIds').child($companyId).exists()",
-        // La escritura/modificación se deja restringida por ahora. 
-        // Se podría permitir al 'ownerId' o a un admin.
-        ".write": false 
-      }
-    },
+    match /companies/{companyId} {
+      // El usuario puede leer si su `uid` existe en un documento de `projectManagers` 
+      // y si el `companyId` que intenta leer está en el array `companyIds` de su perfil.
+      allow read: if request.auth != null 
+                  && companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds;
+      
+      // La escritura/modificación se deja restringida por ahora. 
+      // Se podría permitir al 'ownerId' o a un admin.
+      allow write: if false;
+    }
+
     // Los proyectos son legibles por los usuarios que pertenecen a la empresa del proyecto.
-    "projects": {
-      "$projectId": {
-        ".read": "auth != null && root.child('projectManagers').child(auth.uid).child('companyIds').child(data.child('companyId').val()).exists()",
-         // La escritura/modificación se deja restringida.
-        ".write": false
-      }
-    },
-    // Por defecto, se deniega el acceso de lectura y escritura a toda la base de datos.
-    ".read": false,
-    ".write": false
+    match /projects/{projectId} {
+      // El usuario puede leer si tiene acceso a la compañía del proyecto.
+      // `resource.data.companyId` accede al campo 'companyId' del documento de proyecto que se está intentando leer.
+      allow read: if request.auth != null 
+                  && resource.data.companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds;
+
+      // La escritura/modificación se deja restringida.
+      allow write: if false;
+    }
   }
 }
