@@ -24,7 +24,6 @@ const profileFormSchema = z.object({
   lastName: z.string().min(1, "El apellido es obligatorio."),
   email: z.string().email().optional(),
   phone: z.string().optional(),
-  company: z.string().optional(),
   country: z.string().optional(),
   department: z.string().optional(),
   city: z.string().optional(),
@@ -37,7 +36,6 @@ const defaultValues: Partial<ProfileFormValues> = {
   lastName: "Ejemplo",
   email: "usuario@ejemplo.com",
   phone: "+1 234 567 890",
-  company: "Innovaciones Tech",
   country: "co",
   department: "ant",
   city: "med",
@@ -118,19 +116,6 @@ export default function ProfilePage() {
                                 <FormLabel>Número de Celular</FormLabel>
                                 <FormControl>
                                     <Input placeholder="Tu número de celular" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="company"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Empresa</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Nombre de tu empresa" {...field} />
                                 </FormControl>
                                 <FormMessage />
                                 </FormItem>
