@@ -24,7 +24,7 @@ import { departments, getCitiesByDepartment } from "@/lib/locations";
 const profileFormSchema = z.object({
   firstName: z.string().min(1, "El nombre es obligatorio."),
   lastName: z.string().min(1, "El apellido es obligatorio."),
-  email: z.string().email().optional(),
+  email: z.string().email("Por favor, introduce una dirección de correo electrónico válida."),
   phone: z.string().optional(),
   country: z.string().optional(),
   department: z.string().optional(),
@@ -36,7 +36,7 @@ type ProfileFormValues = z.infer<typeof profileFormSchema>;
 const defaultValues: Partial<ProfileFormValues> = {
   firstName: "",
   lastName: "",
-  email: "usuario@ejemplo.com",
+  email: "",
   phone: "",
   country: "co",
   department: "",
@@ -120,10 +120,10 @@ export default function ProfilePage() {
                                 <FormItem>
                                 <FormLabel>Dirección de Correo Electrónico</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="Tu correo electrónico" {...field} readOnly />
+                                    <Input placeholder="Tu correo electrónico" {...field} />
                                 </FormControl>
                                 <FormDescription>
-                                    El correo electrónico no se puede modificar.
+                                    La dirección donde te llegarán las notificaciones.
                                 </FormDescription>
                                 <FormMessage />
                                 </FormItem>
@@ -151,7 +151,7 @@ export default function ProfilePage() {
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>País</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value} disabled>
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                                         <FormControl>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Selecciona un país" />
