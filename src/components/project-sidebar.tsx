@@ -19,6 +19,7 @@ import {
   CheckCircle,
   FileJson,
   ChevronLeft,
+  Building,
 } from 'lucide-react';
 
 interface ProjectSidebarProps {
@@ -56,7 +57,13 @@ export function ProjectSidebar({ project }: ProjectSidebarProps) {
         <Link href="/dashboard" className="w-full">
             <SidebarMenuButton size="sm" className="w-full justify-start">
                 <ChevronLeft className="mr-2 h-4 w-4" />
-                <span>Todos los Proyectos</span>
+                <span>Todas las Empresas</span>
+            </SidebarMenuButton>
+        </Link>
+        <Link href={`/dashboard/company/${project.companyId}`} className="w-full">
+             <SidebarMenuButton size="sm" variant="outline" className="w-full justify-start">
+                <Building className="mr-2 h-4 w-4" />
+                <span>Proyectos de la Empresa</span>
             </SidebarMenuButton>
         </Link>
       </SidebarHeader>

@@ -13,7 +13,23 @@ export interface Project {
   name: string;
   description: string;
   imageUrl: string;
+  companyId: string;
   status: ProjectStatus;
+}
+
+export interface Company {
+    id: string;
+    name: string;
+    description: string;
+    projectIds: string[];
+    ownerId: string;
+}
+
+export interface ProjectManager {
+    id: string;
+    name: string;
+    email: string;
+    companyIds: string[];
 }
 
 export type Risk = {
