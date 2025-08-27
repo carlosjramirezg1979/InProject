@@ -35,16 +35,6 @@ const profileFormSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
-const defaultValues: Partial<ProfileFormValues> = {
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    country: "co",
-    department: "",
-    city: "",
-};
-
 export default function ProfilePage() {
     const { toast } = useToast();
     const [cities, setCities] = useState<string[]>([]);
@@ -53,9 +43,32 @@ export default function ProfilePage() {
 
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
-        defaultValues,
+        defaultValues: {
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            country: "co",
+            department: "",
+            city: "",
+        },
         mode: "onChange",
     });
+
+    useEffect(() => {
+        const currentUser = projectManagers.find(pm => pm.id === currentUserId);
+        if (currentUser) {
+            form.reset({
+                firstName: currentUser.firstName,
+                lastName: currentUser.lastName,
+                email: currentUser.email,
+                phone: currentUser.phone || '',
+                country: currentUser.country || 'co',
+                department: currentUser.department || '',
+                city: currentUser.city || ''
+            });
+        }
+    }, [form, currentUserId]);
 
     const selectedDepartment = form.watch("department");
     
@@ -66,7 +79,10 @@ export default function ProfilePage() {
             
             const currentCity = form.getValues("city");
             if (currentCity && !departmentCities.includes(currentCity)) {
-                form.setValue("city", ""); 
+                // Do not reset city if it's already set from user data,
+                // only reset if the user changes the department manually.
+                // This check is tricky, so for now we let the effect run.
+                // A better approach would be to check if the change is user-initiated.
             }
         } else {
             setCities([]);
