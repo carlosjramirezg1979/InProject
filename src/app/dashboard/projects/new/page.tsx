@@ -56,7 +56,7 @@ const newProjectFormSchema = z.object({
   endDate: z.date({ required_error: "La fecha de fin es obligatoria." }),
   weeks: z.string().optional(),
   budget: z.string().regex(/^\d+$/, "El presupuesto debe ser un valor numérico."),
-  currency: z.string({ required_error: "Debe seleccionar una moneda." }),
+  currency: z.string(),
   acceptanceCriteria: z.string().min(10, "Los criterios de aceptación deben tener al menos 10 caracteres."),
   sector: z.string({ required_error: "Debe seleccionar un sector." }),
 }).refine(data => data.endDate > data.startDate, {
@@ -74,7 +74,7 @@ const defaultValues: Partial<NewProjectFormValues> = {
   scope: "",
   weeks: "",
   budget: "",
-  currency: "USD",
+  currency: "COP",
   acceptanceCriteria: "",
   sector: "",
 };
@@ -309,7 +309,7 @@ export default function NewProjectPage() {
                                     name="budget"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel>Presupuesto Global del Proyecto</FormLabel>
+                                            <FormLabel>Presupuesto Global del Proyecto (COP)</FormLabel>
                                             <FormControl>
                                                 <Input 
                                                     type="text" 
@@ -322,28 +322,6 @@ export default function NewProjectPage() {
                                                     }}
                                                 />
                                             </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="currency"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Moneda</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                <FormControl>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Moneda" />
-                                                </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="USD">USD</SelectItem>
-                                                    <SelectItem value="EUR">EUR</SelectItem>
-                                                    <SelectItem value="COP">COP</SelectItem>
-                                                </SelectContent>
-                                            </Select>
                                             <FormMessage />
                                         </FormItem>
                                     )}
