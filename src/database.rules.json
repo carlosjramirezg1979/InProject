@@ -15,7 +15,7 @@
                 },
                 "companies": {
                   "{companyId}": {
-                    "allow": "read: if request.auth != null && companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds; create: if request.auth != null; update, delete: if false;"
+                    "allow": "create: if request.auth != null; read: if request.auth != null && companyId in get(/databases/$(database)/documents/projectManagers/$(request.auth.uid)).data.companyIds; update, delete: if false;"
                   }
                 },
                 "projects": {
@@ -31,5 +31,3 @@
     }
   }
 }
-
-    

@@ -32,7 +32,7 @@ export const addCompanyAndAssociateWithProject = async (
     batch.set(companyRef, {
         ...companyData,
         id: companyRef.id,
-        projectIds: [projectId],
+        projectIds: arrayUnion(projectId),
         ownerId: projectManagerId,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -57,5 +57,3 @@ export const addCompanyAndAssociateWithProject = async (
 
     return { companyId: companyRef.id };
 };
-
-    
