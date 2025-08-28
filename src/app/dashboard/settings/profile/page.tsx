@@ -74,21 +74,25 @@ export default function ProfilePage() {
         }
     }, [userProfile, user, form]);
 
-    // Effect to handle department changes by the user, and to load initial cities
+    // Effect to handle department changes
     useEffect(() => {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
-            
-            // Only reset city if the user changes the department and the current city is not in the new list
+
             const currentCity = form.getValues('city');
-            if (currentCity && !departmentCities.includes(currentCity)) {
-                form.setValue('city', '');
+            const isCityInNewList = departmentCities.includes(currentCity);
+            const userProfileCityIsCurrentCity = userProfile?.city === currentCity;
+
+            // Only reset the city if the user has manually changed the department
+            // and the previously selected/saved city is not in the new list of cities.
+            if (!isCityInNewList && !userProfileCityIsCurrentCity) {
+                 form.setValue('city', '');
             }
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form]);
+    }, [selectedDepartment, form, userProfile?.city]);
 
 
     async function onSubmit(data: ProfileFormValues) {
