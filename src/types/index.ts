@@ -79,6 +79,31 @@ export interface ProjectManager {
     companyIds: string[];
 }
 
+export interface Stakeholder {
+    id: string;
+    projectId: string;
+    name: string;
+    phone?: string;
+    email: string;
+    role: string;
+    dependency: string;
+    country: string;
+    department: string;
+    city: string;
+    projectRole: string;
+    expectations: string;
+    influence: 'Alto' | 'Medio' | 'Bajo';
+    power: 'Alto' | 'Medio' | 'Bajo';
+    impact: 'Alto' | 'Medio' | 'Bajo';
+    interestPhase: string;
+    interestType: 'Positiva' | 'Negativa' | 'Neutra';
+    infoToCommunicate: string[];
+    communicationFrequency: string;
+    communicationResponsible: string;
+    approvalResponsible: string;
+    communicationMethod: string;
+}
+
 export type Risk = {
   riskName: string;
   riskDescription: string;
@@ -115,5 +140,3 @@ const forgotPasswordSchema = z.object({
     email: z.string().email(),
 });
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
-
-    
