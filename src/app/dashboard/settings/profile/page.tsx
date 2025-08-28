@@ -59,40 +59,44 @@ export default function ProfilePage() {
     
     const selectedDepartment = form.watch("department");
 
-    // Effect to populate form with profile data when it's loaded
+    // Effect to populate form with user data and handle initial location setup
     useEffect(() => {
         if (userProfile && user) {
+            const initialDepartment = userProfile.department || "";
+            const initialCity = userProfile.city || "";
+
             form.reset({
                 firstName: userProfile.firstName || "",
                 lastName: userProfile.lastName || "",
                 email: user.email || "",
                 phone: userProfile.phone || "",
                 country: userProfile.country || "co",
-                department: userProfile.department || "",
-                city: userProfile.city || "",
+                department: initialDepartment,
+                city: initialCity,
             });
+
+            // If an initial department is set, populate its cities
+            if (initialDepartment) {
+                const departmentCities = getCitiesByDepartment(initialDepartment) || [];
+                setCities(departmentCities);
+            }
         }
     }, [userProfile, user, form]);
 
-    // Effect to handle department changes
+    // Effect to handle department changes by the user
     useEffect(() => {
-        if (selectedDepartment) {
+        // Only run if selectedDepartment is not the same as the initial profile department
+        // to prevent resetting the city on initial load.
+        const isUserChange = userProfile?.department !== selectedDepartment;
+
+        if (selectedDepartment && isUserChange) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
-
-            const currentCity = form.getValues('city');
-            const isCityInNewList = departmentCities.includes(currentCity);
-            const userProfileCityIsCurrentCity = userProfile?.city === currentCity;
-
-            // Only reset the city if the user has manually changed the department
-            // and the previously selected/saved city is not in the new list of cities.
-            if (!isCityInNewList && !userProfileCityIsCurrentCity) {
-                 form.setValue('city', '');
-            }
-        } else {
-            setCities([]);
+            form.setValue('city', ''); // Reset city when department changes
+        } else if (!selectedDepartment) {
+             setCities([]); // Clear cities if no department is selected
         }
-    }, [selectedDepartment, form, userProfile?.city]);
+    }, [selectedDepartment, userProfile?.department, form]);
 
 
     async function onSubmit(data: ProfileFormValues) {
