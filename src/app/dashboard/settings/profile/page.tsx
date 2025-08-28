@@ -59,44 +59,42 @@ export default function ProfilePage() {
     
     const selectedDepartment = form.watch("department");
 
-    // Effect to populate form with user data and handle initial location setup
+    // Effect to populate form with user data
     useEffect(() => {
         if (userProfile && user) {
-            const initialDepartment = userProfile.department || "";
-            const initialCity = userProfile.city || "";
-
             form.reset({
                 firstName: userProfile.firstName || "",
                 lastName: userProfile.lastName || "",
                 email: user.email || "",
                 phone: userProfile.phone || "",
                 country: userProfile.country || "co",
-                department: initialDepartment,
-                city: initialCity,
+                department: userProfile.department || "",
+                city: userProfile.city || "",
             });
-
-            // If an initial department is set, populate its cities
-            if (initialDepartment) {
-                const departmentCities = getCitiesByDepartment(initialDepartment) || [];
-                setCities(departmentCities);
-            }
         }
     }, [userProfile, user, form]);
 
-    // Effect to handle department changes by the user
+    // Effect to handle department and city dependencies
     useEffect(() => {
-        // Only run if selectedDepartment is not the same as the initial profile department
-        // to prevent resetting the city on initial load.
-        const isUserChange = userProfile?.department !== selectedDepartment;
-
-        if (selectedDepartment && isUserChange) {
-            const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
+        const currentDepartmentValue = form.getValues("department");
+        if (currentDepartmentValue) {
+            const departmentCities = getCitiesByDepartment(currentDepartmentValue) || [];
             setCities(departmentCities);
-            form.setValue('city', ''); // Reset city when department changes
-        } else if (!selectedDepartment) {
-             setCities([]); // Clear cities if no department is selected
+            // If the currently set city is not in the new list of cities, reset it.
+            // This handles cases where the user changes the department.
+            if (!departmentCities.includes(form.getValues('city'))) {
+                // We check if this is not the initial load to prevent resetting the city
+                // if the profile is still being loaded.
+                const profileCity = userProfile?.city;
+                const profileDepartment = userProfile?.department;
+                if (!(profileCity && profileDepartment === currentDepartmentValue)) {
+                   form.setValue('city', '');
+                }
+            }
+        } else {
+             setCities([]);
         }
-    }, [selectedDepartment, userProfile?.department, form]);
+    }, [selectedDepartment, form, userProfile]);
 
 
     async function onSubmit(data: ProfileFormValues) {
@@ -211,7 +209,7 @@ export default function ProfilePage() {
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>País</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value} defaultValue="co">
+                                        <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Selecciona un país" />
