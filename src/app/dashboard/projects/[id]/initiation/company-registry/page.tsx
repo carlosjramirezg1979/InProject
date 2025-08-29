@@ -7,8 +7,6 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useParams, notFound, useRouter } from "next/navigation";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
 import type { Project } from "@/types";
 
 import { Button } from "@/components/ui/button";
@@ -155,7 +153,7 @@ const InfoItem = ({ label, value }: { label: string; value: string | undefined }
 );
 
 
-export default function CompanyRegistryPage() {
+export default function CompanyRegistryPage({ project }: { project: Project }) {
     const { toast } = useToast();
     const router = useRouter();
     const params = useParams();
@@ -163,8 +161,6 @@ export default function CompanyRegistryPage() {
     const { user, reloadUserProfile, loading: userLoading } = useAuth();
 
     const [isSubmitting, setIsSubmitting] = React.useState(false);
-    const [project, setProject] = React.useState<Project | null>(null);
-    const [loading, setLoading] = React.useState(true);
     const [cities, setCities] = React.useState<string[]>([]);
     
     const form = useForm<CompanyRegistryValues>({
@@ -198,37 +194,6 @@ export default function CompanyRegistryPage() {
         }
     }, [selectedDepartment, form]);
 
-     React.useEffect(() => {
-        async function fetchProject() {
-            if (!projectId) {
-                setLoading(false);
-                return;
-            }
-            try {
-                const projectDocRef = doc(db, 'projects', projectId);
-                const projectDocSnap = await getDoc(projectDocRef);
-                if (projectDocSnap.exists()) {
-                    const data = projectDocSnap.data();
-                     setProject({
-                        ...data,
-                        id: projectDocSnap.id,
-                        startDate: data.startDate.toDate(),
-                        endDate: data.endDate.toDate(),
-                    } as Project);
-                } else {
-                    notFound();
-                }
-            } catch (error) {
-                console.error("Error fetching project data:", error);
-                toast({ variant: "destructive", title: "Error", description: "No se pudo cargar la información del proyecto." });
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchProject();
-    }, [projectId, toast]);
-
-
     async function onSubmit(data: CompanyRegistryValues) {
         if (!user || !projectId || !project) {
             toast({ variant: "destructive", title: "Error", description: "No se pudo identificar al usuario o al proyecto. Por favor, recargue la página."});
@@ -237,14 +202,13 @@ export default function CompanyRegistryPage() {
         setIsSubmitting(true);
         
         try {
-            await addCompanyAndAssociateWithProject(data, user.uid, projectId);
+            const { companyId } = await addCompanyAndAssociateWithProject(data, user.uid, projectId);
             await reloadUserProfile();
             toast({
                 title: "Empresa Registrada",
                 description: "La información de la empresa ha sido guardada y asociada al proyecto exitosamente.",
             });
-            // Redirect to the companies list page
-            router.push(`/dashboard/companies`);
+            router.push(`/dashboard/company/${companyId}`);
         } catch (error) {
             console.error("Error saving company:", error);
             const errorMessage = error instanceof Error ? error.message : "Ocurrió un error desconocido.";
@@ -258,7 +222,7 @@ export default function CompanyRegistryPage() {
         }
     }
     
-    if (userLoading || loading) {
+    if (userLoading) {
         return (
             <div className="flex h-64 items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />

@@ -9,6 +9,7 @@ import type { Project } from '@/types';
 import { ProjectSidebar } from '@/components/project-sidebar';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Loader2 } from 'lucide-react';
+import React from 'react';
 
 export default function ProjectLayout({
   children,
@@ -67,7 +68,12 @@ export default function ProjectLayout({
         <div className="flex-1 grid md:grid-cols-[auto_1fr]">
             <ProjectSidebar project={project} />
             <div className="bg-muted/30 p-8 overflow-auto">
-                {children}
+                {React.Children.map(children, child => {
+                    if (React.isValidElement(child)) {
+                        return React.cloneElement(child, { project } as { project: Project });
+                    }
+                    return child;
+                })}
             </div>
         </div>
     </SidebarProvider>
