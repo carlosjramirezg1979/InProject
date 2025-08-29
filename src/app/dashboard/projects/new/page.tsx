@@ -224,13 +224,33 @@ export default function NewProjectPage() {
 
         try {
             const newProjectRef = doc(collection(db, "projects"));
-            await setDoc(newProjectRef, {
-                ...data,
+            
+            // Construct the project object with only the required fields
+            const newProjectData = {
                 id: newProjectRef.id,
                 projectManagerId: user.uid,
-                budget: parseFloat(data.budget),
+                name: data.name,
+                description: data.description,
+                justification: data.justification,
+                generalObjective: data.generalObjective,
+                scope: data.scope,
                 startDate: Timestamp.fromDate(data.startDate),
                 endDate: Timestamp.fromDate(data.endDate),
+                budget: parseFloat(data.budget),
+                currency: data.currency,
+                sector: data.sector,
+                sponsorName: data.sponsorName,
+                sponsorPhone: data.sponsorPhone,
+                sponsorEmail: data.sponsorEmail,
+                assumptions: data.assumptions,
+                constraints: data.constraints,
+                highLevelRisks: data.highLevelRisks,
+                mainDeliverables: data.mainDeliverables,
+                approvalRequirements: data.approvalRequirements,
+                acceptanceCriteria: data.acceptanceCriteria,
+                country: data.country,
+                department: data.department,
+                city: data.city,
                 imageUrl: `https://picsum.photos/seed/${newProjectRef.id}/600/400`,
                 status: {
                     initiation: 'not-started',
@@ -238,7 +258,9 @@ export default function NewProjectPage() {
                     execution: 'locked',
                     closing: 'locked',
                 }
-            });
+            };
+            
+            await setDoc(newProjectRef, newProjectData);
 
             toast({
                 title: "Proyecto Creado",
@@ -741,5 +763,7 @@ export default function NewProjectPage() {
     </div>
   );
 }
+
+    
 
     
