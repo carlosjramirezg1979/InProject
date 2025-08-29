@@ -1,4 +1,3 @@
-
 {
   "rules": {
     "projectManagers": {
@@ -10,8 +9,8 @@
     "companies": {
       "$companyId": {
         ".read": "request.auth != null && resource.data.ownerId == request.auth.uid",
-        ".create": "request.auth != null",
-        ".update": false,
+        ".create": "request.auth != null && request.auth.uid == request.resource.data.ownerId",
+        ".update": "request.auth != null && resource.data.ownerId == request.auth.uid",
         ".delete": false
       }
     },
@@ -19,7 +18,7 @@
       "$projectId": {
         ".read": "request.auth != null && resource.data.projectManagerId == request.auth.uid",
         ".update": "request.auth != null && resource.data.projectManagerId == request.auth.uid",
-        ".create": "request.auth != null",
+        ".create": "request.auth != null && request.auth.uid == request.resource.data.projectManagerId",
         ".delete": false
       }
     }
