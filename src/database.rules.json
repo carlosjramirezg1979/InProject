@@ -13,9 +13,18 @@ service cloud.firestore {
     }
 
     match /projects/{projectId} {
-      allow read, update: if request.auth != null && resource.data.projectManagerId == request.auth.uid;
+      // Allow read if the user is the project manager
+      allow read: if request.auth != null && resource.data.projectManagerId == request.auth.uid;
+      
+      // Allow create if the user is the designated project manager
       allow create: if request.auth != null && request.resource.data.projectManagerId == request.auth.uid;
+      
+      // Allow update if the user is the project manager
+      allow update: if request.auth != null && resource.data.projectManagerId == request.auth.uid;
+      
       allow delete: if false;
     }
   }
 }
+
+    

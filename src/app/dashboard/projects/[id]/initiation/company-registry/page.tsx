@@ -162,10 +162,8 @@ export default function CompanyRegistryPage() {
     const router = useRouter();
     const params = useParams();
     const projectId = params.id as string;
-    const { user, reloadUserProfile } = useAuth();
+    const { user, reloadUserProfile, loading: userLoading } = useAuth();
 
-    const [project, setProject] = React.useState<Project | null>(null);
-    const [loading, setLoading] = React.useState(true);
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const [cities, setCities] = React.useState<string[]>([]);
     
@@ -193,47 +191,6 @@ export default function CompanyRegistryPage() {
         mode: "onChange",
     });
 
-    React.useEffect(() => {
-        async function fetchProject() {
-            if (!projectId) {
-                setLoading(false);
-                return;
-            }
-            try {
-                const projectDocRef = doc(db, 'projects', projectId);
-                const projectDocSnap = await getDoc(projectDocRef);
-                if (projectDocSnap.exists()) {
-                    const data = projectDocSnap.data();
-                    const fetchedProject = {
-                        ...data,
-                        id: projectDocSnap.id,
-                        startDate: data.startDate.toDate(),
-                        endDate: data.endDate.toDate(),
-                    } as Project;
-                    setProject(fetchedProject);
-
-                    // Pre-fill sponsor data into contact fields
-                    form.reset({
-                        ...form.getValues(),
-                        contactName: fetchedProject.sponsorName || "",
-                        contactEmail: fetchedProject.sponsorEmail || "",
-                        contactEmailConfirm: fetchedProject.sponsorEmail || "",
-                        contactPhoneNumber: fetchedProject.sponsorPhone || "",
-                    });
-                } else {
-                    notFound();
-                }
-            } catch (err) {
-                console.error("Error fetching project for company registry:", err);
-                toast({ variant: "destructive", title: "Error", description: "No se pudo cargar la información del proyecto." });
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchProject();
-    }, [projectId, form, toast]);
-
-
     const selectedDepartment = form.watch("department");
     
     React.useEffect(() => {
@@ -249,14 +206,14 @@ export default function CompanyRegistryPage() {
     }, [selectedDepartment, form]);
 
     async function onSubmit(data: CompanyRegistryValues) {
-        if (!user || !project) {
+        if (!user || !projectId) {
             toast({ variant: "destructive", title: "Error", description: "No se pudo identificar al usuario o al proyecto. Por favor, recargue la página."});
             return;
         }
         setIsSubmitting(true);
         
         try {
-            const { companyId } = await addCompanyAndAssociateWithProject(data, user.uid, project.id);
+            const { companyId } = await addCompanyAndAssociateWithProject(data, user.uid, projectId);
             await reloadUserProfile();
             toast({
                 title: "Empresa Registrada",
@@ -276,7 +233,7 @@ export default function CompanyRegistryPage() {
         }
     }
     
-    if (loading) {
+    if (userLoading) {
         return (
             <div className="flex h-64 items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -466,7 +423,7 @@ export default function CompanyRegistryPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle>Persona de Contacto</CardTitle>
-                        <CardDescription>Información del contacto principal en la empresa (pre-cargada desde el patrocinador del proyecto).</CardDescription>
+                        <CardDescription>Información del contacto principal en la empresa.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                          <FormField
