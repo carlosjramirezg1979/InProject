@@ -68,12 +68,7 @@ export default function ProjectLayout({
         <div className="flex-1 grid md:grid-cols-[auto_1fr]">
             <ProjectSidebar project={project} />
             <div className="bg-muted/30 p-8 overflow-auto">
-                {React.Children.map(children, child => {
-                    if (React.isValidElement(child)) {
-                        return React.cloneElement(child, { project } as { project: Project });
-                    }
-                    return child;
-                })}
+                {children}
             </div>
         </div>
     </SidebarProvider>
