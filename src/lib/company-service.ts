@@ -22,38 +22,29 @@ export const addCompanyAndAssociateWithProject = async (
         throw new Error("Project manager ID and project ID are required.");
     }
     
-    // Get a new write batch
     const batch = writeBatch(db);
 
-    // 1. Create a reference for a new company document
     const companyRef = doc(collection(db, "companies"));
-
-    // 2. Set the data for the new company document in the batch
     batch.set(companyRef, {
         ...companyData,
         id: companyRef.id,
-        projectIds: arrayUnion(projectId),
+        projectIds: [projectId],
         ownerId: projectManagerId,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
     });
 
-    // 3. Create a reference to the project document
     const projectRef = doc(db, "projects", projectId);
-    
-    // 4. Update the project document with the new company's ID in the batch
     batch.update(projectRef, { companyId: companyRef.id });
 
-    // 5. Create a reference to the project manager document
     const projectManagerRef = doc(db, "projectManagers", projectManagerId);
-    
-    // 6. Update the project manager's companyIds array in the batch
     batch.update(projectManagerRef, {
         companyIds: arrayUnion(companyRef.id)
     });
 
-    // Commit the batch
     await batch.commit();
 
     return { companyId: companyRef.id };
 };
+
+    

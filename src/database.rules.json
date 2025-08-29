@@ -19,9 +19,11 @@
       "$projectId": {
         ".read": "request.auth != null && resource.data.projectManagerId == request.auth.uid",
         ".create": "request.auth != null && request.resource.data.projectManagerId == request.auth.uid",
-        ".update": "request.auth != null && resource.data.projectManagerId == request.auth.uid",
+        ".update": "request.auth != null && resource.data.projectManagerId == request.auth.uid && (request.resource.data.keys().hasOnly(['companyId']) || request.resource.data.keys().hasOnly(['status']))",
         ".delete": false
       }
     }
   }
 }
+
+    

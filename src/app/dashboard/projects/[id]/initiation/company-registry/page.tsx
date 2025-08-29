@@ -6,10 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
-import { useParams, notFound, useRouter } from "next/navigation";
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import type { Project } from "@/types";
+import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -147,24 +144,13 @@ const companyRegistrySchema = z.object({
 
 type CompanyRegistryValues = z.infer<typeof companyRegistrySchema>;
 
-const InfoItem = ({ label, value }: { label: string; value: string | undefined }) => (
-    <div>
-        <p className="text-sm font-medium text-muted-foreground">{label}</p>
-        <p className="text-base">{value || 'N/A'}</p>
-    </div>
-);
-
-
 export default function CompanyRegistryPage() {
     const { toast } = useToast();
     const router = useRouter();
     const params = useParams();
     const projectId = params.id as string;
-    const { user, reloadUserProfile, loading: userLoading } = useAuth();
+    const { user, loading: userLoading } = useAuth();
     
-    const [project, setProject] = React.useState<Project | null>(null);
-    const [loadingProject, setLoadingProject] = React.useState(true);
-
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const [cities, setCities] = React.useState<string[]>([]);
     
@@ -185,35 +171,6 @@ export default function CompanyRegistryPage() {
         mode: "onChange",
     });
 
-    React.useEffect(() => {
-        async function fetchProject() {
-            if (!projectId) return;
-            setLoadingProject(true);
-            try {
-                const projectDocRef = doc(db, 'projects', projectId);
-                const projectDocSnap = await getDoc(projectDocRef);
-                if (projectDocSnap.exists()) {
-                    const data = projectDocSnap.data();
-                    setProject({
-                        ...data,
-                        id: projectDocSnap.id,
-                        startDate: data.startDate.toDate(),
-                        endDate: data.endDate.toDate(),
-                    } as Project);
-                } else {
-                    notFound();
-                }
-            } catch (error) {
-                console.error("Error fetching project:", error);
-                notFound();
-            } finally {
-                setLoadingProject(false);
-            }
-        }
-        fetchProject();
-    }, [projectId]);
-
-
     const selectedDepartment = form.watch("department");
     
     React.useEffect(() => {
@@ -229,15 +186,14 @@ export default function CompanyRegistryPage() {
     }, [selectedDepartment, form]);
 
     async function onSubmit(data: CompanyRegistryValues) {
-        if (!user || !projectId || !project) {
+        if (!user || !projectId) {
             toast({ variant: "destructive", title: "Error", description: "No se pudo identificar al usuario o al proyecto. Por favor, recargue la página."});
             return;
         }
         setIsSubmitting(true);
         
         try {
-            const { companyId } = await addCompanyAndAssociateWithProject(data, user.uid, projectId);
-            await reloadUserProfile();
+            await addCompanyAndAssociateWithProject(data, user.uid, projectId);
             toast({
                 title: "Empresa Registrada",
                 description: "La información de la empresa ha sido guardada y asociada al proyecto exitosamente.",
@@ -256,16 +212,12 @@ export default function CompanyRegistryPage() {
         }
     }
     
-    if (userLoading || loadingProject) {
+    if (userLoading) {
         return (
             <div className="flex h-64 items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
-    }
-    
-    if (!project) {
-        return notFound();
     }
 
   return (
@@ -447,20 +399,6 @@ export default function CompanyRegistryPage() {
                     </CardContent>
                 </Card>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Persona de Contacto (Patrocinador)</CardTitle>
-                        <CardDescription>Información del patrocinador del proyecto, quien será el contacto principal.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <InfoItem label="Nombre del Patrocinador" value={project.sponsorName} />
-                            <InfoItem label="Correo Electrónico" value={project.sponsorEmail} />
-                            <InfoItem label="Teléfono de Contacto" value={project.sponsorPhone} />
-                        </div>
-                    </CardContent>
-                </Card>
-
                  <div className="flex justify-end">
                     <Button type="submit" size="lg" disabled={isSubmitting}>
                         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -472,3 +410,5 @@ export default function CompanyRegistryPage() {
     </div>
   );
 }
+
+    
