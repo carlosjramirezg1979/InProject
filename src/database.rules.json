@@ -1,29 +1,36 @@
-
 {
   "rules": {
     "projectManagers": {
       "$userId": {
         ".read": "request.auth != null && request.auth.uid == $userId",
-        ".write": "request.auth != null && request.auth.uid == $userId"
+        // Allow user to create their own profile
+        ".create": "request.auth != null && request.auth.uid == $userId",
+        // Allow user to update their own profile, but only certain fields
+        ".update": "request.auth != null && request.auth.uid == $userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstName', 'lastName', 'phone', 'country', 'department', 'city', 'companyIds'])",
+        ".delete": false
       }
     },
     "companies": {
       "$companyId": {
+        // User can read a company if they are the owner
         ".read": "request.auth != null && resource.data.ownerId == request.auth.uid",
+        // User can create a company if they are the owner
         ".create": "request.auth != null && request.resource.data.ownerId == request.auth.uid",
+        // User can update a company if they are the owner
         ".update": "request.auth != null && resource.data.ownerId == request.auth.uid",
         ".delete": false
       }
     },
     "projects": {
       "$projectId": {
+        // User can read a project if they are the project manager
         ".read": "request.auth != null && resource.data.projectManagerId == request.auth.uid",
+        // User can create a project if they are the project manager
         ".create": "request.auth != null && request.resource.data.projectManagerId == request.auth.uid",
-        ".update": "request.auth != null && resource.data.projectManagerId == request.auth.uid && (request.resource.data.keys().hasOnly(['companyId']) || request.resource.data.keys().hasOnly(['status']))",
+        // User can update companyId or status if they are the project manager
+        ".update": "request.auth != null && resource.data.projectManagerId == request.auth.uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['companyId', 'status'])",
         ".delete": false
       }
     }
   }
 }
-
-    
