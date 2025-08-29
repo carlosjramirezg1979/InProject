@@ -237,7 +237,7 @@ export default function CompanyRegistryPage() {
         setIsSubmitting(true);
         
         try {
-            const { companyId } = await addCompanyAndAssociateWithProject(data, user.uid, projectId);
+            await addCompanyAndAssociateWithProject(data, user.uid, projectId);
             await reloadUserProfile();
             toast({
                 title: "Empresa Registrada",
