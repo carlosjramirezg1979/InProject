@@ -164,6 +164,7 @@ export default function CompanyRegistryPage() {
 
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const [project, setProject] = React.useState<Project | null>(null);
+    const [loading, setLoading] = React.useState(true);
     const [cities, setCities] = React.useState<string[]>([]);
     
     const form = useForm<CompanyRegistryValues>({
@@ -200,6 +201,7 @@ export default function CompanyRegistryPage() {
      React.useEffect(() => {
         async function fetchProject() {
             if (!projectId) {
+                setLoading(false);
                 return;
             }
             try {
@@ -219,6 +221,8 @@ export default function CompanyRegistryPage() {
             } catch (error) {
                 console.error("Error fetching project data:", error);
                 toast({ variant: "destructive", title: "Error", description: "No se pudo cargar la información del proyecto." });
+            } finally {
+                setLoading(false);
             }
         }
         fetchProject();
@@ -233,22 +237,14 @@ export default function CompanyRegistryPage() {
         setIsSubmitting(true);
         
         try {
-            const companyDataWithSponsor = {
-                ...data,
-                contactName: project.sponsorName,
-                contactEmail: project.sponsorEmail,
-                contactRole: 'Sponsor / Patrocinador',
-                contactPhoneCountryCode: '+57', // Assuming a default or fetch from sponsor data if available
-                contactPhoneNumber: project.sponsorPhone || '',
-            };
-
-            const { companyId } = await addCompanyAndAssociateWithProject(companyDataWithSponsor, user.uid, projectId);
+            await addCompanyAndAssociateWithProject(data, user.uid, projectId);
             await reloadUserProfile();
             toast({
                 title: "Empresa Registrada",
                 description: "La información de la empresa ha sido guardada y asociada al proyecto exitosamente.",
             });
-            router.push(`/dashboard/company/${companyId}`);
+            // Redirect to the projects list for the newly created company
+            router.push(`/dashboard`);
         } catch (error) {
             console.error("Error saving company:", error);
             const errorMessage = error instanceof Error ? error.message : "Ocurrió un error desconocido.";
@@ -262,12 +258,16 @@ export default function CompanyRegistryPage() {
         }
     }
     
-    if (userLoading || !project) {
+    if (userLoading || loading) {
         return (
             <div className="flex h-64 items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
+    }
+    
+    if (!project) {
+        return notFound();
     }
 
   return (
@@ -417,7 +417,7 @@ export default function CompanyRegistryPage() {
                             name="description"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Descripción de la Empresa</FormLabel>
+                                    <FormLabel>Descripción de la Empresa *</FormLabel>
                                     <FormControl><Textarea placeholder="Describe brevemente la empresa y sus actividades." {...field} /></FormControl>
                                     <FormMessage />
                                 </FormItem>

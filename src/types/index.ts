@@ -54,16 +54,11 @@ export interface Company {
     employeeCount: string;
     companyType: string;
     sector: string;
-    contactName: string;
-    contactEmail: string;
-    contactRole: string;
-    contactPhoneCountryCode: string;
-    contactPhoneNumber: string;
     projectIds: string[];
     ownerId: string;
 }
 
-export type CompanyFormData = Omit<Company, 'id' | 'projectIds' | 'ownerId' | 'contactPhoneExtension'>;
+export type CompanyFormData = Omit<Company, 'id' | 'projectIds' | 'ownerId'>;
 
 
 export interface ProjectManager {
