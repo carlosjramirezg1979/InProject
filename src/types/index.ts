@@ -59,12 +59,11 @@ export interface Company {
     contactRole: string;
     contactPhoneCountryCode: string;
     contactPhoneNumber: string;
-    contactPhoneExtension?: string;
     projectIds: string[];
     ownerId: string;
 }
 
-export type CompanyFormData = Omit<Company, 'id' | 'projectIds' | 'ownerId'>;
+export type CompanyFormData = Omit<Company, 'id' | 'projectIds' | 'ownerId' | 'contactPhoneExtension'>;
 
 
 export interface ProjectManager {

@@ -143,19 +143,17 @@ const companyRegistrySchema = z.object({
   website: z.string().optional(),
   description: z.string().min(1, "La descripción es obligatoria."),
   sector: z.string({ required_error: "El sector es obligatorio." }),
-  contactName: z.string().min(1, "El nombre del contacto es obligatorio."),
-  contactEmail: z.string().email("Debe ser un correo electrónico válido."),
-  contactEmailConfirm: z.string().email("Debe ser un correo electrónico válido."),
-  contactRole: z.string().min(1, "El cargo es obligatorio."),
-  contactPhoneCountryCode: z.string().min(1, "El código de país es obligatorio."),
-  contactPhoneNumber: z.string().min(1, "El número de contacto es obligatorio."),
-  contactPhoneExtension: z.string().optional(),
-}).refine(data => data.contactEmail === data.contactEmailConfirm, {
-    message: "Los correos electrónicos no coinciden.",
-    path: ["contactEmailConfirm"],
 });
 
 type CompanyRegistryValues = z.infer<typeof companyRegistrySchema>;
+
+const InfoItem = ({ label, value }: { label: string; value: string | undefined }) => (
+    <div>
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <p className="text-base">{value || 'N/A'}</p>
+    </div>
+);
+
 
 export default function CompanyRegistryPage() {
     const { toast } = useToast();
@@ -165,6 +163,7 @@ export default function CompanyRegistryPage() {
     const { user, reloadUserProfile, loading: userLoading } = useAuth();
 
     const [isSubmitting, setIsSubmitting] = React.useState(false);
+    const [project, setProject] = React.useState<Project | null>(null);
     const [cities, setCities] = React.useState<string[]>([]);
     
     const form = useForm<CompanyRegistryValues>({
@@ -180,13 +179,6 @@ export default function CompanyRegistryPage() {
             website: "",
             description: "",
             sector: "",
-            contactName: "",
-            contactEmail: "",
-            contactEmailConfirm: "",
-            contactRole: "",
-            contactPhoneCountryCode: "+57",
-            contactPhoneNumber: "",
-            contactPhoneExtension: "",
         },
         mode: "onChange",
     });
@@ -205,15 +197,52 @@ export default function CompanyRegistryPage() {
         }
     }, [selectedDepartment, form]);
 
+     React.useEffect(() => {
+        async function fetchProject() {
+            if (!projectId) {
+                return;
+            }
+            try {
+                const projectDocRef = doc(db, 'projects', projectId);
+                const projectDocSnap = await getDoc(projectDocRef);
+                if (projectDocSnap.exists()) {
+                    const data = projectDocSnap.data();
+                     setProject({
+                        ...data,
+                        id: projectDocSnap.id,
+                        startDate: data.startDate.toDate(),
+                        endDate: data.endDate.toDate(),
+                    } as Project);
+                } else {
+                    notFound();
+                }
+            } catch (error) {
+                console.error("Error fetching project data:", error);
+                toast({ variant: "destructive", title: "Error", description: "No se pudo cargar la información del proyecto." });
+            }
+        }
+        fetchProject();
+    }, [projectId, toast]);
+
+
     async function onSubmit(data: CompanyRegistryValues) {
-        if (!user || !projectId) {
+        if (!user || !projectId || !project) {
             toast({ variant: "destructive", title: "Error", description: "No se pudo identificar al usuario o al proyecto. Por favor, recargue la página."});
             return;
         }
         setIsSubmitting(true);
         
         try {
-            const { companyId } = await addCompanyAndAssociateWithProject(data, user.uid, projectId);
+            const companyDataWithSponsor = {
+                ...data,
+                contactName: project.sponsorName,
+                contactEmail: project.sponsorEmail,
+                contactRole: 'Sponsor / Patrocinador',
+                contactPhoneCountryCode: '+57', // Assuming a default or fetch from sponsor data if available
+                contactPhoneNumber: project.sponsorPhone || '',
+            };
+
+            const { companyId } = await addCompanyAndAssociateWithProject(companyDataWithSponsor, user.uid, projectId);
             await reloadUserProfile();
             toast({
                 title: "Empresa Registrada",
@@ -233,7 +262,7 @@ export default function CompanyRegistryPage() {
         }
     }
     
-    if (userLoading) {
+    if (userLoading || !project) {
         return (
             <div className="flex h-64 items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -247,7 +276,7 @@ export default function CompanyRegistryPage() {
             <CardHeader>
                 <CardTitle className="font-headline text-2xl">Registro de Empresa</CardTitle>
                 <CardDescription>
-                Información detallada sobre la empresa o cliente para el cual se realiza el proyecto.
+                Información detallada sobre la empresa o cliente para el cual se realiza el proyecto. El contacto principal será el patrocinador del proyecto.
                 </CardDescription>
             </CardHeader>
         </Card>
@@ -422,99 +451,14 @@ export default function CompanyRegistryPage() {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Persona de Contacto</CardTitle>
-                        <CardDescription>Información del contacto principal en la empresa.</CardDescription>
+                        <CardTitle>Persona de Contacto (Patrocinador)</CardTitle>
+                        <CardDescription>Información del patrocinador del proyecto, quien será el contacto principal.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
-                         <FormField
-                            control={form.control}
-                            name="contactName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Nombre completo del contacto *</FormLabel>
-                                    <FormControl><Input placeholder="Ej: Carlos Rodriguez" {...field} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <FormField
-                                control={form.control}
-                                name="contactEmail"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Correo del contacto *</FormLabel>
-                                        <FormControl><Input type="email" placeholder="contacto@ejemplo.com" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="contactEmailConfirm"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Confirmar correo del contacto *</FormLabel>
-                                        <FormControl><Input type="email" placeholder="Repite el correo electrónico" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        <FormField
-                            control={form.control}
-                            name="contactRole"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Cargo en la Empresa *</FormLabel>
-                                    <FormControl><Input placeholder="Ej: Gerente de Proyectos" {...field} /></FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                    <CardContent className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                             <FormField
-                                control={form.control}
-                                name="contactPhoneCountryCode"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Código País *</FormLabel>
-                                        <Select onValueChange={field.onChange} value={field.value} defaultValue="+57">
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Código" /></SelectTrigger></FormControl>
-                                            <SelectContent>
-                                                <SelectItem value="+57">Colombia (+57)</SelectItem>
-                                                <SelectItem value="+1">USA (+1)</SelectItem>
-                                                <SelectItem value="+52">México (+52)</SelectItem>
-                                                <SelectItem value="+54">Argentina (+54)</SelectItem>
-                                                <SelectItem value="+34">España (+34)</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="contactPhoneNumber"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Número de contacto *</FormLabel>
-                                        <FormControl><Input type="tel" placeholder="3001234567" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                             <FormField
-                                control={form.control}
-                                name="contactPhoneExtension"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Extensión</FormLabel>
-                                        <FormControl><Input type="tel" placeholder="123" {...field} /></FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            <InfoItem label="Nombre del Patrocinador" value={project.sponsorName} />
+                            <InfoItem label="Correo Electrónico" value={project.sponsorEmail} />
+                            <InfoItem label="Teléfono de Contacto" value={project.sponsorPhone} />
                         </div>
                     </CardContent>
                 </Card>
@@ -530,5 +474,3 @@ export default function CompanyRegistryPage() {
     </div>
   );
 }
-
-    
