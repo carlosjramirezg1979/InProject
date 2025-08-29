@@ -6,8 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
-import { notFound } from 'next/navigation';
+import { useParams, useRouter, notFound } from "next/navigation";
 
 
 import { Button } from "@/components/ui/button";
