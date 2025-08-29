@@ -251,7 +251,7 @@ export default function NewProjectPage() {
                 city: data.city,
                 imageUrl: `https://picsum.photos/seed/${newProjectRef.id}/600/400`,
                 status: {
-                    initiation: 'not-started',
+                    initiation: 'in-progress',
                     planning: 'locked',
                     execution: 'locked',
                     closing: 'locked',
@@ -262,9 +262,9 @@ export default function NewProjectPage() {
 
             toast({
                 title: "Proyecto Creado",
-                description: "Tu proyecto ha sido creado exitosamente.",
+                description: "Tu proyecto ha sido creado exitosamente. Ahora registra la empresa cliente.",
             });
-            router.push('/dashboard');
+            router.push(`/dashboard/projects/${newProjectRef.id}/initiation/company-registry`);
         } catch (error) {
             console.error("Error creating project: ", error);
             toast({
@@ -761,5 +761,3 @@ export default function NewProjectPage() {
     </div>
   );
 }
-
-    
