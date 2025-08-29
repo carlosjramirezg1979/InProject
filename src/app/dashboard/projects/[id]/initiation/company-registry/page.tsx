@@ -7,6 +7,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { notFound } from 'next/navigation';
+
 
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +28,9 @@ import { useToast } from "@/hooks/use-toast";
 import { departments, getCitiesByDepartment } from "@/lib/locations";
 import { useAuth } from "@/context/auth-context";
 import { addCompanyAndAssociateWithProject } from "@/lib/company-service";
+import type { CompanyFormData, Project } from '@/types';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 const companySectors = [
     {
@@ -153,6 +158,39 @@ export default function CompanyRegistryPage() {
     
     const [isSubmitting, setIsSubmitting] = React.useState(false);
     const [cities, setCities] = React.useState<string[]>([]);
+    const [project, setProject] = React.useState<Project | null>(null);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        async function fetchProject() {
+          if (!projectId) {
+            setLoading(false);
+            return;
+          }
+          try {
+            const projectDocRef = doc(db, 'projects', projectId);
+            const projectDocSnap = await getDoc(projectDocRef);
+            if (projectDocSnap.exists()) {
+              const data = projectDocSnap.data();
+              setProject({
+                ...data,
+                id: projectDocSnap.id,
+                startDate: data.startDate.toDate(),
+                endDate: data.endDate.toDate(),
+              } as Project);
+            } else {
+              notFound();
+            }
+          } catch (error) {
+            console.error("Error fetching project:", error);
+            toast({ variant: "destructive", title: "Error", description: "No se pudo cargar la información del proyecto." });
+          } finally {
+            setLoading(false);
+          }
+        }
+    
+        fetchProject();
+      }, [projectId, toast]);
     
     const form = useForm<CompanyRegistryValues>({
         resolver: zodResolver(companyRegistrySchema),
@@ -193,7 +231,8 @@ export default function CompanyRegistryPage() {
         setIsSubmitting(true);
         
         try {
-            await addCompanyAndAssociateWithProject(data, user.uid, projectId);
+            const companyFormData: CompanyFormData = data;
+            await addCompanyAndAssociateWithProject(companyFormData, user.uid, projectId);
             toast({
                 title: "Empresa Registrada",
                 description: "La información de la empresa ha sido guardada y asociada al proyecto exitosamente.",
@@ -212,13 +251,18 @@ export default function CompanyRegistryPage() {
         }
     }
     
-    if (userLoading) {
+    if (userLoading || loading) {
         return (
             <div className="flex h-64 items-center justify-center">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
+
+     if (!project) {
+        return notFound();
+    }
+
 
   return (
     <div className="space-y-8">
@@ -399,6 +443,27 @@ export default function CompanyRegistryPage() {
                     </CardContent>
                 </Card>
 
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Persona de Contacto (Patrocinador)</CardTitle>
+                        <CardDescription>Esta es la información del patrocinador del proyecto. Se utilizará como contacto principal para la empresa.</CardDescription>
+                    </CardHeader>
+                     <CardContent className="space-y-4">
+                        <div className="space-y-1">
+                            <p className="text-sm font-medium text-muted-foreground">Nombre</p>
+                            <p className="text-base text-foreground">{project.sponsorName}</p>
+                        </div>
+                         <div className="space-y-1">
+                            <p className="text-sm font-medium text-muted-foreground">Correo Electrónico</p>
+                            <p className="text-base text-foreground">{project.sponsorEmail}</p>
+                        </div>
+                         <div className="space-y-1">
+                            <p className="text-sm font-medium text-muted-foreground">Teléfono</p>
+                            <p className="text-base text-foreground">{project.sponsorPhone || 'N/A'}</p>
+                        </div>
+                    </CardContent>
+                </Card>
+
                  <div className="flex justify-end">
                     <Button type="submit" size="lg" disabled={isSubmitting}>
                         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -410,5 +475,3 @@ export default function CompanyRegistryPage() {
     </div>
   );
 }
-
-    

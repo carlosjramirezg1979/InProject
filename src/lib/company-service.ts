@@ -25,14 +25,17 @@ export const addCompanyAndAssociateWithProject = async (
     const batch = writeBatch(db);
 
     const companyRef = doc(collection(db, "companies"));
-    batch.set(companyRef, {
+
+    const newCompany = {
         ...companyData,
         id: companyRef.id,
         projectIds: [projectId],
         ownerId: projectManagerId,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-    });
+    };
+    
+    batch.set(companyRef, newCompany);
 
     const projectRef = doc(db, "projects", projectId);
     batch.update(projectRef, { companyId: companyRef.id });
@@ -46,5 +49,3 @@ export const addCompanyAndAssociateWithProject = async (
 
     return { companyId: companyRef.id };
 };
-
-    
