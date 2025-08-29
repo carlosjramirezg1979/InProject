@@ -8,13 +8,13 @@ import Link from "next/link";
 import { PlusCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { Project } from "@/types";
-import { collection, query, where, getDocs, documentId } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { Loader2 } from "lucide-react";
 
 
 export default function DashboardPage() {
-  const { user, userProfile } = useAuth();
+  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,6 +26,7 @@ export default function DashboardPage() {
         return;
       }
 
+      setLoading(true);
       try {
         // This query is now secure because the security rules ensure
         // a user can only read projects they are the manager of.
@@ -55,8 +56,7 @@ export default function DashboardPage() {
       }
     }
 
-    // We only need the user to be loaded, not necessarily the profile,
-    // as the query only depends on user.uid.
+    // We only need the user to be loaded.
     if (user) {
         fetchProjects();
     } else {
