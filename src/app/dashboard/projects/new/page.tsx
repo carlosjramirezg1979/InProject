@@ -30,7 +30,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/auth-context";
 import { departments, getCitiesByDepartment } from "@/lib/locations";
 
@@ -154,7 +153,7 @@ const newProjectFormSchema = z.object({
   country: z.string({ required_error: "El país es obligatorio." }),
   department: z.string({ required_error: "El departamento es obligatorio." }),
   city: z.string({ required_error: "La ciudad es obligatoria." }),
-}).refine((data) => data.startDate < data.endDate, {
+}).refine((data) => data.endDate > data.startDate, {
   message: "La fecha de fin no puede ser anterior a la fecha de inicio.",
   path: ["endDate"],
 });
@@ -225,7 +224,6 @@ export default function NewProjectPage() {
         try {
             const newProjectRef = doc(collection(db, "projects"));
             
-            // Construct the project object with only the required fields
             const newProjectData = {
                 id: newProjectRef.id,
                 projectManagerId: user.uid,
@@ -763,7 +761,5 @@ export default function NewProjectPage() {
     </div>
   );
 }
-
-    
 
     
