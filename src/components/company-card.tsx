@@ -20,14 +20,18 @@ export function CompanyCard({ company }: CompanyCardProps) {
         const fetchProjectCounts = async () => {
             if (!company.id) return;
 
-            const q = query(collection(db, "projects"), where("companyId", "==", company.id));
-            const querySnapshot = await getDocs(q);
-            const projects = querySnapshot.docs.map(doc => doc.data());
-            
-            setProjectCount(projects.length);
+            try {
+                const q = query(collection(db, "projects"), where("companyId", "==", company.id));
+                const querySnapshot = await getDocs(q);
+                const projects = querySnapshot.docs.map(doc => doc.data());
+                
+                setProjectCount(projects.length);
 
-            const active = projects.filter(p => p.status.closing !== 'completed').length;
-            setActiveProjects(active);
+                const active = projects.filter(p => p.status.closing !== 'completed').length;
+                setActiveProjects(active);
+            } catch (error) {
+                console.error("Error fetching project counts for company:", company.id, error);
+            }
         };
 
         fetchProjectCounts();

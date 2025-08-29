@@ -237,14 +237,14 @@ export default function CompanyRegistryPage() {
         setIsSubmitting(true);
         
         try {
-            await addCompanyAndAssociateWithProject(data, user.uid, projectId);
+            const { companyId } = await addCompanyAndAssociateWithProject(data, user.uid, projectId);
             await reloadUserProfile();
             toast({
                 title: "Empresa Registrada",
                 description: "La información de la empresa ha sido guardada y asociada al proyecto exitosamente.",
             });
-            // Redirect to the projects list for the newly created company
-            router.push(`/dashboard`);
+            // Redirect to the companies list page
+            router.push(`/dashboard/companies`);
         } catch (error) {
             console.error("Error saving company:", error);
             const errorMessage = error instanceof Error ? error.message : "Ocurrió un error desconocido.";
