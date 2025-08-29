@@ -17,7 +17,7 @@ export interface Project {
   name: string;
   description: string;
   imageUrl: string;
-  companyId: string;
+  companyId?: string;
   status: ProjectStatus;
   justification: string;
   generalObjective: string;
@@ -134,3 +134,5 @@ const forgotPasswordSchema = z.object({
     email: z.string().email(),
 });
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+
+    
