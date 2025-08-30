@@ -54,7 +54,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
       setUser(currentUser);
-      await fetchUserProfile(currentUser);
+      if (currentUser) {
+        await fetchUserProfile(currentUser);
+      } else {
+        setUserProfile(null);
+      }
       setLoading(false);
     });
 

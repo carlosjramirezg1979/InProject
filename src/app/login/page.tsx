@@ -51,6 +51,7 @@ export default function LoginPage() {
     
     if (result.error) {
         setError(result.error);
+        setIsSubmitting(false);
     } else {
         toast({
             title: '¡Bienvenido!',
@@ -58,7 +59,6 @@ export default function LoginPage() {
         });
         router.push('/dashboard');
     }
-    setIsSubmitting(false);
   };
 
   return (
