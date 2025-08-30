@@ -5,37 +5,45 @@ import type { Company } from '@/types';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, onSnapshot, Unsubscribe } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { useAuth } from '@/context/auth-context';
 
 interface CompanyCardProps {
   company: Company;
 }
 
 export function CompanyCard({ company }: CompanyCardProps) {
+    const { user } = useAuth();
     const [projectCount, setProjectCount] = useState(0);
     const [activeProjects, setActiveProjects] = useState(0);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchProjectCounts = async () => {
-            if (!company.id) return;
+        if (!company.id || !user) return;
 
-            try {
-                const q = query(collection(db, "projects"), where("companyId", "==", company.id));
-                const querySnapshot = await getDocs(q);
-                const projects = querySnapshot.docs.map(doc => doc.data());
-                
-                setProjectCount(projects.length);
+        setLoading(true);
+        const q = query(
+            collection(db, "projects"), 
+            where("companyId", "==", company.id),
+            where("projectManagerId", "==", user.uid)
+        );
 
-                const active = projects.filter(p => p.status.closing !== 'completed').length;
-                setActiveProjects(active);
-            } catch (error) {
-                console.error("Error fetching project counts for company:", company.id, error);
-            }
-        };
+        const unsubscribe: Unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const projects = querySnapshot.docs.map(doc => doc.data());
+            
+            setProjectCount(projects.length);
 
-        fetchProjectCounts();
-    }, [company.id]);
+            const active = projects.filter(p => p.status?.closing !== 'completed').length;
+            setActiveProjects(active);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching project counts for company:", company.id, error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, [company.id, user]);
 
 
   return (
@@ -47,8 +55,17 @@ export function CompanyCard({ company }: CompanyCardProps) {
         </CardHeader>
         <CardContent className="flex-grow">
            <div className="text-sm text-muted-foreground space-y-2">
-                <p><span className="font-medium text-foreground">{projectCount}</span> Proyectos Totales</p>
-                <p><span className="font-medium text-foreground">{activeProjects}</span> Proyectos Activos</p>
+                {loading ? (
+                    <>
+                        <p>Cargando proyectos...</p>
+                        <p>Cargando activos...</p>
+                    </>
+                ) : (
+                    <>
+                        <p><span className="font-medium text-foreground">{projectCount}</span> Proyectos Totales</p>
+                        <p><span className="font-medium text-foreground">{activeProjects}</span> Proyectos Activos</p>
+                    </>
+                )}
            </div>
         </CardContent>
         <CardFooter>

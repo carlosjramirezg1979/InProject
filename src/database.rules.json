@@ -1,15 +1,23 @@
 
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /projectManagers/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-    }
-    match /projects/{projectId} {
-      allow read, write: if request.auth != null && request.resource.data.projectManagerId == request.auth.uid;
-    }
-    match /companies/{companyId} {
-      allow read, write: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
+{
+  "rules": {
+    "projectManagers": {
+      "$uid": {
+        ".read": "request.auth != null && request.auth.uid == $uid",
+        ".write": "request.auth != null && request.auth.uid == $uid"
+      }
+    },
+    "projects": {
+      "$projectId": {
+        ".read": "request.auth != null && get(/databases/$(database)/documents/projects/$(projectId)).data.projectManagerId == request.auth.uid",
+        ".write": "request.auth != null && request.auth.uid == request.resource.data.projectManagerId"
+      }
+    },
+    "companies": {
+      "$companyId": {
+        ".read": "request.auth != null && get(/databases/$(database)/documents/companies/$(companyId)).data.ownerId == request.auth.uid",
+        ".write": "request.auth != null && request.auth.uid == request.resource.data.ownerId"
+      }
     }
   }
 }
