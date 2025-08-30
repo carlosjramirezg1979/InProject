@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -32,7 +31,7 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const { loading: authLoading } = useAuth(); // Use auth context loading for global state
-  const [isLoading, setIsLoading] = React.useState(false); // Local loading for form submission
+  const [isSubmitting, setIsSubmitting] = React.useState(false); // Local loading for form submission
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
@@ -43,9 +42,8 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (values: SignInFormValues) => {
-    setIsLoading(true);
+    setIsSubmitting(true);
     const { user, error } = await signIn(values);
-    setIsLoading(false);
     
     if (error) {
         toast({
@@ -61,9 +59,10 @@ export default function LoginPage() {
         // On successful sign-in, the AuthProvider will handle the state update 
         // and the DashboardLayout will manage the redirect.
     }
+    setIsSubmitting(false);
   };
   
-  const isButtonDisabled = isLoading || authLoading;
+  const isButtonDisabled = isSubmitting || authLoading;
 
   return (
     <div className="flex h-screen items-center justify-center bg-background px-4">
@@ -122,7 +121,7 @@ export default function LoginPage() {
               {(isButtonDisabled) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              { authLoading ? 'Cargando...' : isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }
+              { authLoading ? 'Cargando...' : isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión' }
             </Button>
           </form>
         </Form>

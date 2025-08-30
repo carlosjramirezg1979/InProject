@@ -23,8 +23,17 @@ export default function DashboardLayout({
   }, [user, loading, router]);
 
   // While checking auth state or fetching the profile, show a loader.
-  if (loading || !userProfile) {
+  if (loading) {
     return (
+        <div className="flex h-screen items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    )
+  }
+  
+  // If there is a user, but we are still waiting for the profile from firestore
+  if(user && !userProfile){
+     return (
         <div className="flex h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -32,10 +41,15 @@ export default function DashboardLayout({
   }
 
   // If we have a user and a profile, render the dashboard.
-  return (
-    <div className="relative flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1 flex flex-col">{children}</main>
-    </div>
-  );
+  if (user && userProfile) {
+    return (
+        <div className="relative flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1 flex flex-col">{children}</main>
+        </div>
+    );
+  }
+
+  // Fallback for any other case, though it shouldn't be reached with the useEffect redirect.
+  return null;
 }
