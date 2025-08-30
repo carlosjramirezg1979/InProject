@@ -55,6 +55,8 @@ export default function DashboardPage() {
     if (user) {
         fetchProjects();
     } else {
+        // If there's no user, we are not fetching, so stop loading.
+        // The layout will handle redirection if necessary.
         setLoading(false);
     }
   }, [user]);
