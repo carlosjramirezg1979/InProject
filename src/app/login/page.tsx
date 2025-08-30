@@ -57,6 +57,7 @@ export default function LoginPage() {
             title: '¡Bienvenido!',
             description: 'Has iniciado sesión correctamente.',
         });
+        // No es necesario setIsSubmitting(false) aquí porque la página va a ser redirigida
         router.push('/dashboard');
     }
   };
