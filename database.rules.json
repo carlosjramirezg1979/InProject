@@ -1,4 +1,3 @@
-
 {
   "rules": {
     "projectManagers": {
@@ -9,14 +8,12 @@
     },
     "projects": {
       "$projectId": {
-        // Only the assigned project manager can read or write to the project
         ".read": "auth != null && resource.data.projectManagerId == auth.uid",
         ".write": "auth != null && request.resource.data.projectManagerId == auth.uid"
       }
     },
     "companies": {
       "$companyId": {
-        // Only the owner can read or write to the company
         ".read": "auth != null && resource.data.ownerId == auth.uid",
         ".write": "auth != null && request.resource.data.ownerId == auth.uid"
       }
