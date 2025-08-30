@@ -16,13 +16,14 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
+    // If loading is finished and there's no user, redirect to login.
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
 
-  // Show a loading screen while the user profile is being fetched after login
-  if (loading || !user || !userProfile) {
+  // While checking auth state or fetching the profile, show a loader.
+  if (loading) {
     return (
         <div className="flex h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -30,6 +31,20 @@ export default function DashboardLayout({
     )
   }
 
+  // If loading is done, but we still don't have a user or profile,
+  // it means the user is not properly logged in or the profile is missing.
+  // The useEffect above will handle the redirect to login.
+  // We show a loader here as well to prevent a flash of content.
+  if (!user || !userProfile) {
+     return (
+        <div className="flex h-screen items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+    )
+  }
+
+
+  // If we have a user and a profile, render the dashboard.
   return (
     <div className="relative flex min-h-screen flex-col">
       <Header />

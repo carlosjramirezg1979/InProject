@@ -33,8 +33,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { loading: authLoading, user, userProfile } = useAuth();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-
+  
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -44,6 +43,9 @@ export default function LoginPage() {
   });
 
   React.useEffect(() => {
+    // If the user is authenticated and has a profile, redirect to the dashboard.
+    // This logic is now primarily handled by the DashboardLayout, but this serves
+    // as a quick redirect for users who are already logged in and land on this page.
     if (!authLoading && user && userProfile) {
       router.push('/dashboard');
     }
@@ -51,7 +53,6 @@ export default function LoginPage() {
 
 
   const onSubmit = async (values: SignInFormValues) => {
-    setIsSubmitting(true);
     const { error } = await signIn(values);
     
     if (error) {
@@ -60,14 +61,10 @@ export default function LoginPage() {
             title: 'Error de inicio de sesión',
             description: error,
         });
-        setIsSubmitting(false);
     }
-    // If sign-in is successful, the useEffect will handle the redirect
-    // when the user and userProfile are loaded.
-    // The loading state will be handled by the authLoading from the context.
+    // On successful sign-in, the useEffect above and the AuthProvider will handle
+    // the user state update and the DashboardLayout will manage the redirect.
   };
-
-  const isLoading = isSubmitting || authLoading;
 
   return (
     <div className="flex h-screen items-center justify-center bg-background px-4">
@@ -93,7 +90,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Correo Electrónico</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={isLoading} />
+                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={authLoading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -106,7 +103,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Contraseña</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="********" {...field} disabled={isLoading} />
+                    <Input type="password" placeholder="********" {...field} disabled={authLoading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,11 +119,11 @@ export default function LoginPage() {
                 </Link>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && (
+            <Button type="submit" className="w-full" disabled={authLoading}>
+              {authLoading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              { isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }
+              { authLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }
             </Button>
           </form>
         </Form>
