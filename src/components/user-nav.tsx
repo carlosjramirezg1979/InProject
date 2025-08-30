@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -41,9 +42,10 @@ export function UserNav() {
   }
 
   const getInitials = (firstName?: string, lastName?: string) => {
-    const firstInitial = firstName?.charAt(0) || '';
-    const lastInitial = lastName?.charAt(0) || '';
-    return `${firstInitial}${lastInitial}`.toUpperCase() || 'U';
+    if (!firstName || !lastName) {
+      return 'U';
+    }
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   }
 
   return (
