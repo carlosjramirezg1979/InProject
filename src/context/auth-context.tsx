@@ -28,18 +28,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchUserProfile = useCallback(async (firebaseUser: User) => {
-      const docRef = doc(db, "projectManagers", firebaseUser.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const profileData = docSnap.data() as Omit<ProjectManager, 'id'>;
-        setUserProfile({
-            ...profileData,
-            id: docSnap.id
-        });
-      } else {
+      try {
+        const docRef = doc(db, "projectManagers", firebaseUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const profileData = docSnap.data() as Omit<ProjectManager, 'id'>;
+          setUserProfile({
+              ...profileData,
+              id: docSnap.id
+          });
+        } else {
+          setUserProfile(null);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
         setUserProfile(null);
       }
   }, []);
+
+  const reloadUserProfile = useCallback(async () => {
+    if (user) {
+        setLoading(true);
+        await fetchUserProfile(user);
+        setLoading(false);
+    }
+  }, [user, fetchUserProfile]);
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -56,14 +70,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     return () => unsubscribe();
   }, [fetchUserProfile]);
-
-   const reloadUserProfile = useCallback(async () => {
-    if (user) {
-        setLoading(true);
-        await fetchUserProfile(user);
-        setLoading(false);
-    }
-  }, [user, fetchUserProfile]);
 
 
   if (loading) {
