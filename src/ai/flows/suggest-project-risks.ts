@@ -1,83 +1,61 @@
-'use server';
-
-/**
- * @fileOverview This file defines a Genkit flow for suggesting project risks based on project details.
- *
- * - suggestProjectRisks - A function that takes project details as input and returns a list of suggested risks.
- * - SuggestProjectRisksInput - The input type for the suggestProjectRisks function.
- * - SuggestProjectRisksOutput - The return type for the suggestProjectRisks function.
- */
-
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const SuggestProjectRisksInputSchema = z.object({
-  projectDescription: z
-    .string()
-    .describe('A detailed description of the project, including its goals, scope, and key activities.'),
-  projectType: z.string().describe('The type of project (e.g., software development, construction, marketing campaign).'),
-  projectTimeline: z.string().describe('The planned timeline for the project, including start and end dates.'),
-  projectBudget: z.string().describe('The allocated budget for the project.'),
-  projectTeamSkills: z
-    .string()
-    .describe('A description of the skills and experience of the project team.'),
-  projectDependencies: z
-    .string()
-    .describe('Dependencies on other projects or external factors.'),
-  projectAssumptions: z.string().describe('Assumptions made during project planning.'),
-  riskAppetite: z.string().describe('A description of organization risk tolerance.'),
-});
-export type SuggestProjectRisksInput = z.infer<typeof SuggestProjectRisksInputSchema>;
-
-const SuggestProjectRisksOutputSchema = z.object({
-  risks: z
-    .array(
-      z.object({
-        riskName: z.string().describe('The name of the risk.'),
-        riskDescription: z.string().describe('A detailed description of the risk and its potential impact.'),
-        riskLikelihood: z.string().describe('Likelihood of this risk occurring (High, Medium, Low)'),
-        riskImpact: z.string().describe('Impact to the project if this risk occurs (High, Medium, Low)'),
-        mitigationStrategies: z
-          .array(z.string())
-          .describe('A list of strategies to mitigate the risk.'),
-        relevantFactors: z.array(z.string()).describe('The ProjectWise project input factors that made this risk relevant.'),
-      })
-    )
-    .describe('A list of potential risks associated with the project.'),
-});
-export type SuggestProjectRisksOutput = z.infer<typeof SuggestProjectRisksOutputSchema>;
-
-export async function suggestProjectRisks(input: SuggestProjectRisksInput): Promise<SuggestProjectRisksOutput> {
-  return suggestProjectRisksFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'suggestProjectRisksPrompt',
-  input: {schema: SuggestProjectRisksInputSchema},
-  output: {schema: SuggestProjectRisksOutputSchema},
-  prompt: `You are an experienced project risk manager.  For the project described below, please identify potential risks. For each risk, list the risk name, a detailed description of the risk and its potential impact, likelihood of the risk occurring (High, Medium, Low), impact to the project if this risk occurs (High, Medium, Low), a list of strategies to mitigate the risk, and the ProjectWise project input factors that made this risk relevant.
-
-Project Description: {{{projectDescription}}}
-Project Type: {{{projectType}}}
-Project Timeline: {{{projectTimeline}}}
-Project Budget: {{{projectBudget}}}
-Project Team Skills: {{{projectTeamSkills}}}
-Project Dependencies: {{{projectDependencies}}}
-Project Assumptions: {{{projectAssumptions}}}
-Organization risk tolerance: {{{riskAppetite}}}
-
-Return the risks in JSON format.
-`,
-});
-
-const suggestProjectRisksFlow = ai.defineFlow(
-  {
-    name: 'suggestProjectRisksFlow',
-    inputSchema: SuggestProjectRisksInputSchema,
-    outputSchema: SuggestProjectRisksOutputSchema,
+{
+  "name": "nextn",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
   },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+  "dependencies": {
+    "@hookform/resolvers": "^4.1.3",
+    "@radix-ui/react-accordion": "^1.2.3",
+    "@radix-ui/react-alert-dialog": "^1.1.6",
+    "@radix-ui/react-avatar": "^1.1.3",
+    "@radix-ui/react-checkbox": "^1.1.4",
+    "@radix-ui/react-collapsible": "^1.1.11",
+    "@radix-ui/react-dialog": "^1.1.6",
+    "@radix-ui/react-dropdown-menu": "^2.1.6",
+    "@radix-ui/react-label": "^2.1.2",
+    "@radix-ui/react-menubar": "^1.1.6",
+    "@radix-ui/react-popover": "^1.1.6",
+    "@radix-ui/react-progress": "^1.1.2",
+    "@radix-ui/react-radio-group": "^1.2.3",
+    "@radix-ui/react-scroll-area": "^1.2.3",
+    "@radix-ui/react-select": "^2.1.6",
+    "@radix-ui/react-separator": "^1.1.2",
+    "@radix-ui/react-slider": "^1.2.3",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.1.3",
+    "@radix-ui/react-tabs": "^1.1.3",
+    "@radix-ui/react-toast": "^1.2.6",
+    "@radix-ui/react-tooltip": "^1.1.8",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.5.0",
+    "embla-carousel-react": "^8.6.0",
+    "firebase": "^11.9.1",
+    "lucide-react": "^0.475.0",
+    "next": "15.3.3",
+    "patch-package": "^8.0.0",
+    "react": "^18.3.1",
+    "react-day-picker": "^8.10.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.2",
+    "recharts": "^2.15.1",
+    "tailwind-merge": "^3.0.1",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
   }
-);
+}
