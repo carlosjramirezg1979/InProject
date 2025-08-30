@@ -49,7 +49,6 @@ export const signUp = async ({ firstName, lastName, email, password, phone, coun
     await setDoc(doc(db, "projectManagers", user.uid), {
         firstName,
         lastName,
-        email,
         phone: phone || '',
         country,
         department,

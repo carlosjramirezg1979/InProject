@@ -65,7 +65,6 @@ export interface ProjectManager {
     id: string;
     firstName: string;
     lastName: string;
-    email: string;
     phone?: string;
     country?: string;
     department?: string;

@@ -5,7 +5,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { ProjectManager } from '@/types';
 
-type UserProfileUpdateData = Omit<ProjectManager, 'id' | 'email' | 'companyIds'>;
+type UserProfileUpdateData = Omit<ProjectManager, 'id' | 'companyIds'>;
 
 export const updateUserProfile = async (uid: string, data: Partial<UserProfileUpdateData>) => {
     try {
