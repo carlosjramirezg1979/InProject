@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -30,8 +31,9 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const { toast } = useToast();
-  const { loading } = useAuth();
-  
+  const { loading: authLoading } = useAuth(); // Use auth context loading for global state
+  const [isLoading, setIsLoading] = React.useState(false); // Local loading for form submission
+
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -41,7 +43,9 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (values: SignInFormValues) => {
-    const { error } = await signIn(values);
+    setIsLoading(true);
+    const { user, error } = await signIn(values);
+    setIsLoading(false);
     
     if (error) {
         toast({
@@ -49,10 +53,17 @@ export default function LoginPage() {
             title: 'Error de inicio de sesión',
             description: error,
         });
+    } else if (user) {
+        toast({
+            title: '¡Bienvenido!',
+            description: 'Has iniciado sesión correctamente.',
+        });
+        // On successful sign-in, the AuthProvider will handle the state update 
+        // and the DashboardLayout will manage the redirect.
     }
-    // On successful sign-in, the AuthProvider will handle the state update 
-    // and the DashboardLayout will manage the redirect.
   };
+  
+  const isButtonDisabled = isLoading || authLoading;
 
   return (
     <div className="flex h-screen items-center justify-center bg-background px-4">
@@ -78,7 +89,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Correo Electrónico</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={loading} />
+                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={isButtonDisabled} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -91,7 +102,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Contraseña</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="********" {...field} disabled={loading} />
+                    <Input type="password" placeholder="********" {...field} disabled={isButtonDisabled} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -107,11 +118,11 @@ export default function LoginPage() {
                 </Link>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && (
+            <Button type="submit" className="w-full" disabled={isButtonDisabled}>
+              {(isButtonDisabled) && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              { loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }
+              { authLoading ? 'Cargando...' : isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }
             </Button>
           </form>
         </Form>
