@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect } from 'react';
@@ -18,7 +19,7 @@ export default function DashboardLayout({
     if (!loading && !user) {
       router.push('/login');
     }
-  }, [user, userProfile, loading, router]);
+  }, [user, loading]);
 
   if (loading || !user) {
     return (
