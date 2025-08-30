@@ -21,12 +21,7 @@ const AuthContext = createContext<AuthContextType>({
   reloadUserProfile: async () => {},
 });
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<ProjectManager | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchUserProfile = useCallback(async (firebaseUser: User) => {
+const fetchUserProfile = async (firebaseUser: User, setUserProfile: (profile: ProjectManager | null) => void) => {
     try {
       const docRef = doc(db, "projectManagers", firebaseUser.uid);
       const docSnap = await getDoc(docRef);
@@ -43,15 +38,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error fetching user profile:", error);
       setUserProfile(null);
     }
-  }, []);
+};
 
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<ProjectManager | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
       if (currentUser) {
         setUser(currentUser);
-        await fetchUserProfile(currentUser);
+        await fetchUserProfile(currentUser, setUserProfile);
       } else {
         setUser(null);
         setUserProfile(null);
@@ -60,16 +60,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [fetchUserProfile]);
+  }, []);
 
 
   const reloadUserProfile = useCallback(async () => {
     if (user) {
         setLoading(true);
-        await fetchUserProfile(user);
+        await fetchUserProfile(user, setUserProfile);
         setLoading(false);
     }
-  }, [user, fetchUserProfile]);
+  }, [user]);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, loading, reloadUserProfile }}>
