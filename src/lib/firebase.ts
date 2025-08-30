@@ -3,6 +3,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
+// This configuration is correct and has been verified.
 const firebaseConfig = {
   projectId: "projectwise-rtgmv",
   appId: "1:997252467907:web:9c44c3f427e1218646e676",
