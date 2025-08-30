@@ -1,4 +1,6 @@
 
+'use server';
+
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -9,7 +11,7 @@ import {
 } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { doc, setDoc } from 'firebase/firestore';
-import type { SignInFormValues, SignUpFormValues, ForgotPasswordFormValues } from '@/types';
+import type { SignUpFormValues, SignInFormValues, ForgotPasswordFormValues } from '@/types';
 
 function getFirebaseAuthErrorMessage(error: any): string {
     console.error("Firebase Auth Error:", error);
@@ -45,7 +47,6 @@ export const signUp = async ({ firstName, lastName, email, password, phone, coun
 
     // Create a document in Firestore 'projectManagers' collection
     await setDoc(doc(db, "projectManagers", user.uid), {
-        id: user.uid,
         firstName,
         lastName,
         email,
@@ -88,5 +89,3 @@ export const resetPassword = async ({ email }: ForgotPasswordFormValues) => {
     return { success: false, error: getFirebaseAuthErrorMessage(error as AuthError) };
   }
 };
-
-    

@@ -1,11 +1,13 @@
 
+'use server';
+
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from './firebase';
 import type { ProjectManager } from '@/types';
 
 type UserProfileUpdateData = Omit<ProjectManager, 'id' | 'email' | 'companyIds'>;
 
-export const updateUserProfile = async (uid: string, data: UserProfileUpdateData) => {
+export const updateUserProfile = async (uid: string, data: Partial<UserProfileUpdateData>) => {
     try {
         const userDocRef = doc(db, "projectManagers", uid);
         await updateDoc(userDocRef, {

@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, DocumentData } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { ProjectManager } from '@/types';
 import { Loader2 } from 'lucide-react';
@@ -32,7 +32,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const docRef = doc(db, "projectManagers", firebaseUser.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setUserProfile(docSnap.data() as ProjectManager);
+        const profileData = docSnap.data() as Omit<ProjectManager, 'id'>;
+        setUserProfile({
+            ...profileData,
+            id: docSnap.id
+        });
       } else {
         setUserProfile(null);
       }
