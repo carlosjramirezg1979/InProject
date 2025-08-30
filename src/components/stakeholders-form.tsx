@@ -101,7 +101,7 @@ export function StakeholdersForm() {
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form]);
+    }, [selectedDepartment]);
 
     async function onSubmit(data: StakeholderFormValues) {
         setIsSubmitting(true);
@@ -165,9 +165,22 @@ export function StakeholdersForm() {
                              <FormField control={form.control} name="department" render={({ field }) => (
                                 <FormItem><FormLabel>Departamento *</FormLabel><Select onValueChange={field.onChange} value={field.value}><FormControl><SelectTrigger><SelectValue placeholder="Selecciona un departamento" /></SelectTrigger></FormControl><SelectContent>{departments.map((dept) => (<SelectItem key={dept.code} value={dept.code}>{dept.name}</SelectItem>))}</SelectContent></Select><FormMessage /></FormItem>
                             )}/>
-                            <FormField control={form.control} name="city" render={({ field }) => (
-                                <FormItem><FormLabel>Ciudad *</FormLabel><FormControl><Input placeholder="Ej: Bogotá" {...field} /></FormControl><FormMessage /></FormItem>
-                            )}/>
+                            <FormField
+                                control={form.control}
+                                name="city"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Ciudad *</FormLabel>
+                                        <Select onValueChange={field.onChange} value={field.value} disabled={!selectedDepartment || cities.length === 0}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder={selectedDepartment ? "Selecciona una ciudad" : "Selecciona un departamento"} /></SelectTrigger></FormControl>
+                                            <SelectContent>
+                                                {cities.map((city) => (<SelectItem key={city} value={city}>{city}</SelectItem>))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
                     </CardContent>
                 </Card>
@@ -284,3 +297,5 @@ export function StakeholdersForm() {
     </div>
   );
 }
+
+    
