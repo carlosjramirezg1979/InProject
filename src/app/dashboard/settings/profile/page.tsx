@@ -72,7 +72,7 @@ export default function ProfilePage() {
                 city: userProfile.city || "",
             });
         }
-    }, [userProfile, user, form]);
+    }, [userProfile, user]);
 
     // Effect to handle department and city dependencies
     useEffect(() => {
@@ -85,7 +85,7 @@ export default function ProfilePage() {
         } else {
              setCities([]);
         }
-    }, [selectedDepartment]);
+    }, [selectedDepartment, form]);
 
 
     async function onSubmit(data: ProfileFormValues) {
