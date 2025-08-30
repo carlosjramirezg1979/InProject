@@ -21,22 +21,23 @@ const AuthContext = createContext<AuthContextType>({
   reloadUserProfile: async () => {},
 });
 
-const fetchUserProfile = async (firebaseUser: User, setUserProfile: (profile: ProjectManager | null) => void) => {
+// Moved outside the component to ensure it's a stable function reference
+const fetchUserProfile = async (firebaseUser: User): Promise<ProjectManager | null> => {
     try {
       const docRef = doc(db, "projectManagers", firebaseUser.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        setUserProfile({
+        return {
             ...docSnap.data(),
             id: docSnap.id
-        } as ProjectManager);
+        } as ProjectManager;
       } else {
-        setUserProfile(null); 
         console.warn("User profile not found in Firestore for UID:", firebaseUser.uid);
+        return null;
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      setUserProfile(null);
+      return null;
     }
 };
 
@@ -51,7 +52,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(true);
       if (currentUser) {
         setUser(currentUser);
-        await fetchUserProfile(currentUser, setUserProfile);
+        const profile = await fetchUserProfile(currentUser);
+        setUserProfile(profile);
       } else {
         setUser(null);
         setUserProfile(null);
@@ -66,7 +68,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const reloadUserProfile = useCallback(async () => {
     if (user) {
         setLoading(true);
-        await fetchUserProfile(user, setUserProfile);
+        const profile = await fetchUserProfile(user);
+        setUserProfile(profile);
         setLoading(false);
     }
   }, [user]);
