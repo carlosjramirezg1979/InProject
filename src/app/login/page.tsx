@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { signIn } from '@/lib/auth-service';
 import type { SignInFormValues } from '@/types';
+import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, introduce un correo electrónico válido.' }),
@@ -29,7 +30,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const { toast } = useToast();
-  const [authLoading, setAuthLoading] = React.useState(false);
+  const { loading } = useAuth();
   
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
@@ -40,9 +41,7 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (values: SignInFormValues) => {
-    setAuthLoading(true);
     const { error } = await signIn(values);
-    setAuthLoading(false);
     
     if (error) {
         toast({
@@ -79,7 +78,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Correo Electrónico</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={authLoading} />
+                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={loading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -92,7 +91,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Contraseña</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="********" {...field} disabled={authLoading} />
+                    <Input type="password" placeholder="********" {...field} disabled={loading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -108,11 +107,11 @@ export default function LoginPage() {
                 </Link>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={authLoading}>
-              {authLoading && (
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              { authLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }
+              { loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }
             </Button>
           </form>
         </Form>

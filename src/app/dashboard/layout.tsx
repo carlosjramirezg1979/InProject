@@ -23,17 +23,7 @@ export default function DashboardLayout({
   }, [user, loading, router]);
 
   // While checking auth state or fetching the profile, show a loader.
-  if (loading || !user) {
-    return (
-        <div className="flex h-screen items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-    )
-  }
-  
-  // If we have a user but are still waiting for the profile, show a loader.
-  // This prevents content flash while profile data is being fetched.
-  if (!userProfile) {
+  if (loading || !userProfile) {
     return (
         <div className="flex h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
