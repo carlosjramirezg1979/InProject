@@ -28,8 +28,8 @@ export default function DashboardPage() {
 
       setLoading(true);
       try {
-        // This query is now secure because the security rules ensure
-        // a user can only read projects they are the manager of.
+        // This query is now secure because the security rules enforce
+        // that a user can only query projects where their UID matches.
         const q = query(
           collection(db, "projects"),
           where("projectManagerId", "==", user.uid)
