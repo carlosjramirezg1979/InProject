@@ -3,7 +3,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { User, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, DocumentData } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { ProjectManager } from '@/types';
 import { Loader2 } from 'lucide-react';
@@ -27,8 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userProfile, setUserProfile] = useState<ProjectManager | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserProfile = useCallback(async (firebaseUser: User | null) => {
-    if (firebaseUser) {
+  const fetchUserProfile = useCallback(async (firebaseUser: User) => {
       const docRef = doc(db, "projectManagers", firebaseUser.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -40,28 +39,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       } else {
         setUserProfile(null);
       }
-    } else {
-      setUserProfile(null);
-    }
   }, []);
 
-  const reloadUserProfile = useCallback(async () => {
-    if (user) {
-        await fetchUserProfile(user);
-    }
-  }, [user, fetchUserProfile]);
-
-
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
-      setUser(user);
-      await fetchUserProfile(user);
+      if (currentUser) {
+        setUser(currentUser);
+        await fetchUserProfile(currentUser);
+      } else {
+        setUser(null);
+        setUserProfile(null);
+      }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, [fetchUserProfile]);
+
+   const reloadUserProfile = useCallback(async () => {
+    if (user) {
+        setLoading(true);
+        await fetchUserProfile(user);
+        setLoading(false);
+    }
+  }, [user, fetchUserProfile]);
+
 
   if (loading) {
     return (
