@@ -75,7 +75,7 @@ export default function SignUpPage() {
       } else {
           setCities([]);
       }
-  }, [selectedDepartment, form]);
+  }, [selectedDepartment, form.getValues, form.setValue]);
 
   const onSubmit = async (values: SignUpFormValues) => {
     setIsLoading(true);

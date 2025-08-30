@@ -76,25 +76,16 @@ export default function ProfilePage() {
 
     // Effect to handle department and city dependencies
     useEffect(() => {
-        const currentDepartmentValue = form.getValues("department");
-        if (currentDepartmentValue) {
-            const departmentCities = getCitiesByDepartment(currentDepartmentValue) || [];
+        if (selectedDepartment) {
+            const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
             setCities(departmentCities);
-            // If the currently set city is not in the new list of cities, reset it.
-            // This handles cases where the user changes the department.
             if (!departmentCities.includes(form.getValues('city'))) {
-                // We check if this is not the initial load to prevent resetting the city
-                // if the profile is still being loaded.
-                const profileCity = userProfile?.city;
-                const profileDepartment = userProfile?.department;
-                if (!(profileCity && profileDepartment === currentDepartmentValue)) {
-                   form.setValue('city', '');
-                }
+                form.setValue('city', '');
             }
         } else {
              setCities([]);
         }
-    }, [selectedDepartment, form, userProfile]);
+    }, [selectedDepartment, form]);
 
 
     async function onSubmit(data: ProfileFormValues) {

@@ -220,7 +220,7 @@ export default function CompanyRegistryPage() {
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form]);
+    }, [selectedDepartment, form.getValues, form.setValue]);
 
     async function onSubmit(data: CompanyRegistryValues) {
         if (!user || !projectId) {
