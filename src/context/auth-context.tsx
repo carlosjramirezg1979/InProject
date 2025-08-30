@@ -51,7 +51,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setLoading(true);
       setUser(currentUser);
       await fetchUserProfile(currentUser);
       setLoading(false);
@@ -61,14 +60,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [fetchUserProfile]);
 
   const reloadUserProfile = useCallback(async () => {
-    setLoading(true);
     await fetchUserProfile(user);
-    setLoading(false);
   }, [user, fetchUserProfile]);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, loading, reloadUserProfile }}>
-      {!loading ? children : null}
+      {children}
     </AuthContext.Provider>
   );
 };

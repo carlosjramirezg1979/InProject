@@ -21,7 +21,6 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { signIn } from '@/lib/auth-service';
 import type { SignInFormValues } from '@/types';
-import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, introduce un correo electrónico válido.' }),
@@ -30,7 +29,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const { toast } = useToast();
-  const { loading: authLoading } = useAuth();
+  const [authLoading, setAuthLoading] = React.useState(false);
   
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
@@ -41,7 +40,9 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (values: SignInFormValues) => {
+    setAuthLoading(true);
     const { error } = await signIn(values);
+    setAuthLoading(false);
     
     if (error) {
         toast({
