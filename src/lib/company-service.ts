@@ -40,7 +40,7 @@ export const addCompanyAndAssociateWithProject = async (
     const projectRef = doc(db, "projects", projectId);
     batch.update(projectRef, { companyId: companyRef.id });
 
-    const projectManagerRef = doc(db, "projectManagers", projectManagerId);
+    const projectManagerRef = doc(db, "projectManager", projectManagerId);
     batch.update(projectManagerRef, {
         companyIds: arrayUnion(companyRef.id)
     });

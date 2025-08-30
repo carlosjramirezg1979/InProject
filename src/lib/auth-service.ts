@@ -47,8 +47,8 @@ export const signUp = async ({ firstName, lastName, email, password, phone, coun
         displayName: `${firstName} ${lastName}`,
     });
 
-    // Create a document in Firestore 'projectManagers' collection
-    await setDoc(doc(db, "projectManagers", user.uid), {
+    // Create a document in Firestore 'projectManager' collection
+    await setDoc(doc(db, "projectManager", user.uid), {
         firstName,
         lastName,
         phone: phone || '',
