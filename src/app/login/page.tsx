@@ -51,15 +51,14 @@ export default function LoginPage() {
     
     if (result.error) {
         setError(result.error);
-        setIsSubmitting(false);
     } else {
         toast({
             title: '¡Bienvenido!',
             description: 'Has iniciado sesión correctamente.',
         });
-        // No es necesario setIsSubmitting(false) aquí porque la página va a ser redirigida
         router.push('/dashboard');
     }
+    setIsSubmitting(false); // Ensure this is called in both cases
   };
 
   return (
