@@ -28,8 +28,6 @@ export default function DashboardPage() {
 
       setLoading(true);
       try {
-        // This query is now secure because the security rules enforce
-        // that a user can only query projects where their UID matches.
         const q = query(
           collection(db, "projects"),
           where("projectManagerId", "==", user.uid)
@@ -40,7 +38,6 @@ export default function DashboardPage() {
         const userProjects = querySnapshot.docs.map(doc => ({
           ...doc.data(),
           id: doc.id,
-          // Firestore Timestamps need to be converted to JS Dates
           startDate: doc.data().startDate.toDate(),
           endDate: doc.data().endDate.toDate(),
         })) as Project[];
@@ -49,14 +46,12 @@ export default function DashboardPage() {
 
       } catch (error) {
         console.error("Error fetching projects: ", error);
-        // Set projects to empty array on error to avoid showing stale data
         setProjects([]);
       } finally {
         setLoading(false);
       }
     }
 
-    // We only need the user to be loaded.
     if (user) {
         fetchProjects();
     } else {

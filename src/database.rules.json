@@ -1,19 +1,25 @@
 
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /projectManagers/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
-    }
-    match /projects/{projectId} {
-      // Allow single document reads/writes only by the assigned project manager
-      allow read, write: if request.auth != null && resource.data.projectManagerId == request.auth.uid;
-      
-      // Allow list queries only when filtered by the project manager's own UID
-      allow list: if request.auth != null && request.query.where.get("projectManagerId") == request.auth.uid;
-    }
-    match /companies/{companyId} {
-      allow read, write: if request.auth != null && resource.data.ownerId == request.auth.uid;
+{
+  "rules": {
+    "projectManagers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "projects": {
+      ".indexOn": ["projectManagerId"],
+      "$projectId": {
+        ".read": "auth != null && resource.data.projectManagerId == auth.uid",
+        ".write": "auth != null && resource.data.projectManagerId == auth.uid"
+      }
+    },
+    "companies": {
+       ".indexOn": ["ownerId"],
+      "$companyId": {
+        ".read": "auth != null && resource.data.ownerId == auth.uid",
+        ".write": "auth != null && resource.data.ownerId == auth.uid"
+      }
     }
   }
 }

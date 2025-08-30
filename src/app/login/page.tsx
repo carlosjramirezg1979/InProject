@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { signIn } from '@/lib/auth-service';
 import type { SignInFormValues } from '@/types';
+import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, introduce un correo electrónico válido.' }),
@@ -31,6 +32,7 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { loading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<SignInFormValues>({
@@ -57,10 +59,11 @@ export default function LoginPage() {
             title: '¡Bienvenido!',
             description: 'Has iniciado sesión correctamente.',
         });
-        // On successful sign-in, redirect to the dashboard.
         router.push('/dashboard');
     }
   };
+  
+  const isButtonDisabled = isSubmitting || authLoading;
 
   return (
     <div className="flex h-screen items-center justify-center bg-background px-4">
@@ -86,7 +89,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Correo Electrónico</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={isSubmitting} />
+                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={isButtonDisabled} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -99,7 +102,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Contraseña</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="********" {...field} disabled={isSubmitting} />
+                    <Input type="password" placeholder="********" {...field} disabled={isButtonDisabled} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -115,11 +118,11 @@ export default function LoginPage() {
                 </Link>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting && (
+            <Button type="submit" className="w-full" disabled={isButtonDisabled}>
+              {isButtonDisabled && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              {isButtonDisabled ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </Button>
           </form>
         </Form>

@@ -42,12 +42,10 @@ export const signUp = async ({ firstName, lastName, email, password, phone, coun
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Update Firebase Auth profile
     await updateProfile(user, {
         displayName: `${firstName} ${lastName}`,
     });
 
-    // Create a document in Firestore 'projectManagers' collection
     await setDoc(doc(db, "projectManagers", user.uid), {
         firstName,
         lastName,
