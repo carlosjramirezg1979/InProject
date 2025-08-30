@@ -1,29 +1,25 @@
 
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /projectManagers/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      // Allow user to create their own profile
-      allow create: if request.auth != null && request.auth.uid == userId;
-      // Allow user to update their own profile, but only certain fields
-      allow update: if request.auth != null && request.auth.uid == userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['firstName', 'lastName', 'phone', 'country', 'department', 'city', 'companyIds']);
-      allow delete: if false;
-    }
-
-    match /companies/{companyId} {
-      // User can read a company if they are the owner
-      allow read: if request.auth != null && resource.data.ownerId == request.auth.uid;
-      // User can create a company if they are the owner
-      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid;
-      // User can update a company if they are the owner
-      allow update: if request.auth != null && resource.data.ownerId == request.auth.uid;
-      allow delete: if false;
-    }
-
-    match /projects/{projectId} {
-      allow write: if request.auth != null && request.resource.data.projectManagerId == request.auth.uid;
-      allow read: if request.auth != null && resource.data.projectManagerId == request.auth.uid;
+{
+  "rules": {
+    "projectManagers": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    },
+    "projects": {
+      "$projectId": {
+        // Only the assigned project manager can read or write to the project
+        ".read": "auth != null && resource.data.projectManagerId == auth.uid",
+        ".write": "auth != null && request.resource.data.projectManagerId == auth.uid"
+      }
+    },
+    "companies": {
+      "$companyId": {
+        // Only the owner can read or write to the company
+        ".read": "auth != null && resource.data.ownerId == auth.uid",
+        ".write": "auth != null && request.resource.data.ownerId == auth.uid"
+      }
     }
   }
 }
