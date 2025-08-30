@@ -9,7 +9,7 @@ type UserProfileUpdateData = Omit<ProjectManager, 'id' | 'companyIds'>;
 
 export const updateUserProfile = async (uid: string, data: Partial<UserProfileUpdateData>) => {
     try {
-        const userDocRef = doc(db, "projectManager", uid);
+        const userDocRef = doc(db, "projectManagers", uid);
         await updateDoc(userDocRef, {
             ...data
         });
