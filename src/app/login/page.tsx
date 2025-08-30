@@ -32,7 +32,6 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { loading: authLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<SignInFormValues>({
@@ -62,8 +61,6 @@ export default function LoginPage() {
         router.push('/dashboard');
     }
   };
-  
-  const isButtonDisabled = isSubmitting || authLoading;
 
   return (
     <div className="flex h-screen items-center justify-center bg-background px-4">
@@ -89,7 +86,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Correo Electrónico</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={isButtonDisabled} />
+                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -102,7 +99,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Contraseña</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="********" {...field} disabled={isButtonDisabled} />
+                    <Input type="password" placeholder="********" {...field} disabled={isSubmitting} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,11 +115,11 @@ export default function LoginPage() {
                 </Link>
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isButtonDisabled}>
-              {isButtonDisabled && (
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              {isButtonDisabled ? 'Iniciando sesión...' : 'Iniciar Sesión'}
+              {isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </Button>
           </form>
         </Form>
