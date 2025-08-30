@@ -26,14 +26,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userProfile, setUserProfile] = useState<ProjectManager | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserProfile = useCallback(async (firebaseUser: User | null) => {
-    if (!firebaseUser) {
-      setUserProfile(null);
-      return;
-    }
-
+  const fetchUserProfile = useCallback(async (firebaseUser: User) => {
     try {
-      const docRef = doc(db, "projectManager", firebaseUser.uid);
+      const docRef = doc(db, "projectManagers", firebaseUser.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setUserProfile({
@@ -41,20 +36,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             id: docSnap.id
         } as ProjectManager);
       } else {
-        setUserProfile(null);
+        // This case is important for new sign-ups or if the profile doc is missing
+        setUserProfile(null); 
         console.warn("User profile not found in Firestore for UID:", firebaseUser.uid);
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      setUserProfile(null);
+      setUserProfile(null); // Ensure profile is null on error
     }
   }, []);
 
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setLoading(true);
       setUser(currentUser);
-      await fetchUserProfile(currentUser); 
+      if (currentUser) {
+        await fetchUserProfile(currentUser);
+      } else {
+        setUserProfile(null);
+      }
       setLoading(false);
     });
 

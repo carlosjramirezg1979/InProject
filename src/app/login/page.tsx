@@ -30,8 +30,8 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const { toast } = useToast();
-  const { loading: authLoading } = useAuth(); // Use auth context loading for global state
-  const [isSubmitting, setIsSubmitting] = React.useState(false); // Local loading for form submission
+  const { loading: authLoading } = useAuth();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
@@ -43,7 +43,7 @@ export default function LoginPage() {
 
   const onSubmit = async (values: SignInFormValues) => {
     setIsSubmitting(true);
-    const { user, error } = await signIn(values);
+    const { error } = await signIn(values);
     
     if (error) {
         toast({
@@ -51,15 +51,16 @@ export default function LoginPage() {
             title: 'Error de inicio de sesión',
             description: error,
         });
-    } else if (user) {
+        setIsSubmitting(false);
+    } else {
         toast({
             title: '¡Bienvenido!',
             description: 'Has iniciado sesión correctamente.',
         });
-        // On successful sign-in, the AuthProvider will handle the state update 
-        // and the DashboardLayout will manage the redirect.
+        // On successful sign-in, AuthProvider will handle the state update 
+        // and DashboardLayout will manage the redirect.
+        // We don't need to setIsSubmitting(false) here because the component will unmount.
     }
-    setIsSubmitting(false);
   };
   
   const isButtonDisabled = isSubmitting || authLoading;
@@ -118,7 +119,7 @@ export default function LoginPage() {
               </div>
             </div>
             <Button type="submit" className="w-full" disabled={isButtonDisabled}>
-              {(isButtonDisabled) && (
+              {isButtonDisabled && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
               { authLoading ? 'Cargando...' : isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión' }
