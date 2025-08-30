@@ -41,7 +41,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             id: docSnap.id
         } as ProjectManager);
       } else {
+        // This case might happen if the user exists in Auth but not in Firestore.
+        // It's important to handle this to avoid inconsistent states.
         setUserProfile(null);
+        console.warn("User profile not found in Firestore for UID:", firebaseUser.uid);
       }
     } catch (error) {
       console.error("Error fetching user profile:", error);
@@ -49,18 +52,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      await fetchUserProfile(currentUser);
+      // It's crucial to wait for the profile to be fetched before setting loading to false.
+      await fetchUserProfile(currentUser); 
       setLoading(false);
     });
 
+    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, [fetchUserProfile]);
 
+
   const reloadUserProfile = useCallback(async () => {
-    await fetchUserProfile(user);
+    // We only fetch if there is a current user.
+    if (user) {
+        setLoading(true);
+        await fetchUserProfile(user);
+        setLoading(false);
+    }
   }, [user, fetchUserProfile]);
 
   return (
