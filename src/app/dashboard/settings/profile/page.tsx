@@ -46,20 +46,19 @@ export default function ProfilePage() {
     const form = useForm<ProfileFormValues>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
-            firstName: "",
-            lastName: "",
-            email: "",
-            phone: "",
-            country: "co",
-            department: "",
-            city: "",
+            firstName: userProfile?.firstName || "",
+            lastName: userProfile?.lastName || "",
+            email: user?.email || "",
+            phone: userProfile?.phone || "",
+            country: userProfile?.country || "co",
+            department: userProfile?.department || "",
+            city: userProfile?.city || "",
         },
         mode: "onChange",
     });
     
     const selectedDepartment = form.watch("department");
-
-    // Effect to populate form with user data
+    
     useEffect(() => {
         if (userProfile && user) {
             form.reset({
@@ -72,9 +71,8 @@ export default function ProfilePage() {
                 city: userProfile.city || "",
             });
         }
-    }, [userProfile, user]);
+    }, [userProfile, user, form]);
 
-    // Effect to handle department and city dependencies
     useEffect(() => {
         if (selectedDepartment) {
             const departmentCities = getCitiesByDepartment(selectedDepartment) || [];
@@ -287,3 +285,5 @@ export default function ProfilePage() {
         </div>
     );
 }
+
+    
