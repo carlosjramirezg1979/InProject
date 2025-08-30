@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { logOut } from '@/lib/auth-service';
 import { useToast } from '@/hooks/use-toast';
+import React from 'react';
 
 export function UserNav() {
   const { user, userProfile } = useAuth();
@@ -37,15 +38,15 @@ export function UserNav() {
     }
   };
 
-  if (!user) {
-    return null;
-  }
-
-  const getInitials = (firstName?: string, lastName?: string) => {
-    if (!firstName || !lastName) {
+  const initials = React.useMemo(() => {
+    if (!userProfile?.firstName || !userProfile?.lastName) {
       return 'U';
     }
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    return `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase();
+  }, [userProfile]);
+
+  if (!user) {
+    return null;
   }
 
   return (
@@ -54,7 +55,7 @@ export function UserNav() {
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-9 w-9">
             <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'Usuario'} />
-            <AvatarFallback>{getInitials(userProfile?.firstName, userProfile?.lastName)}</AvatarFallback>
+            <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
