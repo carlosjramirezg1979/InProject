@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { Loader2, GanttChart } from 'lucide-react';
+import { Loader2, GanttChart, AlertCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { signIn } from '@/lib/auth-service';
 import type { SignInFormValues } from '@/types';
-import { useAuth } from '@/context/auth-context';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, introduce un correo electrónico válido.' }),
@@ -33,6 +33,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
@@ -44,14 +45,12 @@ export default function LoginPage() {
 
   const onSubmit = async (values: SignInFormValues) => {
     setIsSubmitting(true);
+    setError(null);
+
     const { error } = await signIn(values);
     
     if (error) {
-        toast({
-            variant: 'destructive',
-            title: 'Error de inicio de sesión',
-            description: error,
-        });
+        setError(error);
         setIsSubmitting(false);
     } else {
         toast({
@@ -77,6 +76,17 @@ export default function LoginPage() {
                 </Link>
             </p>
         </div>
+        
+        {error && (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error de inicio de sesión</AlertTitle>
+                <AlertDescription>
+                    {error}
+                </AlertDescription>
+            </Alert>
+        )}
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
