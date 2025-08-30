@@ -19,9 +19,10 @@ export default function DashboardLayout({
     if (!loading && !user) {
       router.push('/login');
     }
-  }, [user, loading]);
+  }, [user, loading, router]);
 
-  if (loading || !user) {
+  // Show a loading screen while the user profile is being fetched after login
+  if (loading || !user || !userProfile) {
     return (
         <div className="flex h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />

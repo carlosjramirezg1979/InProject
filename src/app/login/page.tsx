@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -21,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { signIn } from '@/lib/auth-service';
 import type { SignInFormValues } from '@/types';
+import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, introduce un correo electrónico válido.' }),
@@ -30,7 +32,8 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const { loading: authLoading, user, userProfile } = useAuth();
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
@@ -40,21 +43,31 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = async (values: SignInFormValues) => {
-    setIsLoading(true);
-    const { user, error } = await signIn(values);
-    setIsLoading(false);
-
-    if (user) {
+  React.useEffect(() => {
+    if (!authLoading && user && userProfile) {
       router.push('/dashboard');
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error de inicio de sesión',
-        description: error,
-      });
     }
+  }, [authLoading, user, userProfile, router]);
+
+
+  const onSubmit = async (values: SignInFormValues) => {
+    setIsSubmitting(true);
+    const { error } = await signIn(values);
+    
+    if (error) {
+        toast({
+            variant: 'destructive',
+            title: 'Error de inicio de sesión',
+            description: error,
+        });
+        setIsSubmitting(false);
+    }
+    // If sign-in is successful, the useEffect will handle the redirect
+    // when the user and userProfile are loaded.
+    // The loading state will be handled by the authLoading from the context.
   };
+
+  const isLoading = isSubmitting || authLoading;
 
   return (
     <div className="flex h-screen items-center justify-center bg-background px-4">
@@ -80,7 +93,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Correo Electrónico</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} />
+                    <Input type="email" placeholder="usuario@ejemplo.com" {...field} disabled={isLoading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -93,7 +106,7 @@ export default function LoginPage() {
                 <FormItem>
                   <FormLabel>Contraseña</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="********" {...field} />
+                    <Input type="password" placeholder="********" {...field} disabled={isLoading} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -113,7 +126,7 @@ export default function LoginPage() {
               {isLoading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Iniciar Sesión
+              { isLoading ? 'Iniciando sesión...' : 'Iniciar Sesión' }
             </Button>
           </form>
         </Form>
