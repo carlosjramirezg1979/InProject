@@ -47,11 +47,10 @@ export default function LoginPage() {
     setIsSubmitting(true);
     setError(null);
 
-    const { error } = await signIn(values);
+    const result = await signIn(values);
     
-    if (error) {
-        setError(error);
-        setIsSubmitting(false);
+    if (result.error) {
+        setError(result.error);
     } else {
         toast({
             title: '¡Bienvenido!',
@@ -59,6 +58,7 @@ export default function LoginPage() {
         });
         router.push('/dashboard');
     }
+    setIsSubmitting(false);
   };
 
   return (
