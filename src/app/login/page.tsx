@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -30,9 +29,8 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
-  const router = useRouter();
   const { toast } = useToast();
-  const { loading: authLoading, user, userProfile } = useAuth();
+  const { loading: authLoading } = useAuth();
   
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
@@ -41,16 +39,6 @@ export default function LoginPage() {
       password: '',
     },
   });
-
-  React.useEffect(() => {
-    // If the user is authenticated and has a profile, redirect to the dashboard.
-    // This logic is now primarily handled by the DashboardLayout, but this serves
-    // as a quick redirect for users who are already logged in and land on this page.
-    if (!authLoading && user && userProfile) {
-      router.push('/dashboard');
-    }
-  }, [authLoading, user, userProfile, router]);
-
 
   const onSubmit = async (values: SignInFormValues) => {
     const { error } = await signIn(values);
@@ -62,8 +50,8 @@ export default function LoginPage() {
             description: error,
         });
     }
-    // On successful sign-in, the useEffect above and the AuthProvider will handle
-    // the user state update and the DashboardLayout will manage the redirect.
+    // On successful sign-in, the AuthProvider will handle the state update 
+    // and the DashboardLayout will manage the redirect.
   };
 
   return (
