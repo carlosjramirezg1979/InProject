@@ -6,7 +6,6 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
-  updateProfile,
 } from 'firebase/auth';
 import { auth, db } from './firebase';
 import { doc, setDoc } from 'firebase/firestore';
@@ -43,13 +42,11 @@ export const signUp = async ({ firstName, lastName, email, password, phone, coun
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    await updateProfile(user, {
-        displayName: `${firstName} ${lastName}`,
-    });
-
+    // Create a document in Firestore for the user profile
     await setDoc(doc(db, "projectManagers", user.uid), {
         firstName,
         lastName,
+        email: user.email, // Storing email in profile for consistency
         phone: phone || '',
         country,
         department,
@@ -57,7 +54,7 @@ export const signUp = async ({ firstName, lastName, email, password, phone, coun
         companyIds: [],
     });
     
-    return { user: userCredential.user, error: null };
+    return { user, error: null };
   } catch (error) {
     return { user: null, error: getFirebaseAuthErrorMessage(error) };
   }

@@ -26,11 +26,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userProfile, setUserProfile] = useState<ProjectManager | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUserProfile = useCallback(async (firebaseUser: User | null) => {
-    if (!firebaseUser) {
-        setUserProfile(null);
-        return;
-    };
+  const fetchUserProfile = useCallback(async (firebaseUser: User) => {
     try {
       const docRef = doc(db, "projectManagers", firebaseUser.uid);
       const docSnap = await getDoc(docRef);
@@ -53,10 +49,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
-      setUser(currentUser);
       if (currentUser) {
+        setUser(currentUser);
         await fetchUserProfile(currentUser);
       } else {
+        setUser(null);
         setUserProfile(null);
       }
       setLoading(false);
