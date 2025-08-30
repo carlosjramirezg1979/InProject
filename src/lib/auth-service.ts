@@ -27,6 +27,8 @@ function getFirebaseAuthErrorMessage(error: any): string {
           return 'El formato del correo electrónico no es válido.';
         case 'auth/weak-password':
           return 'La contraseña debe tener al menos 6 caracteres.';
+        case 'auth/quota-exceeded':
+            return 'Se ha excedido la cuota de intentos de inicio de sesión. Por favor, inténtalo más tarde.';
         default:
           return 'Ocurrió un error inesperado. Por favor, inténtalo de nuevo.';
       }
