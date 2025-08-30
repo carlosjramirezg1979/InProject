@@ -85,7 +85,7 @@ export default function ProfilePage() {
         } else {
              setCities([]);
         }
-    }, [selectedDepartment, form]);
+    }, [selectedDepartment]);
 
 
     async function onSubmit(data: ProfileFormValues) {

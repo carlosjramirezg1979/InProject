@@ -207,7 +207,7 @@ export default function NewProjectPage() {
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form]);
+    }, [selectedDepartment]);
 
     async function onSubmit(data: NewProjectFormValues) {
         if (!user) {

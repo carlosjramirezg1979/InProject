@@ -101,7 +101,7 @@ export function StakeholdersForm() {
         } else {
             setCities([]);
         }
-    }, [selectedDepartment, form]);
+    }, [selectedDepartment]);
 
     async function onSubmit(data: StakeholderFormValues) {
         setIsSubmitting(true);
