@@ -1,31 +1,35 @@
 
 'use client';
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { ProjectCard } from "@/components/project-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { PlusCircle, Loader2 } from "lucide-react";
 import type { Project } from "@/types";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Loader2 } from "lucide-react";
-
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingProjects, setLoadingProjects] = useState(true);
 
   useEffect(() => {
-    async function fetchProjects() {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+    if (authLoading) {
+      return; 
+    }
 
-      setLoading(true);
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    async function fetchProjects() {
+      setLoadingProjects(true);
       try {
         const q = query(
           collection(db, "projects"),
@@ -47,17 +51,25 @@ export default function DashboardPage() {
         console.error("Error fetching projects: ", error);
         setProjects([]);
       } finally {
-        setLoading(false);
+        setLoadingProjects(false);
       }
     }
 
-    if (user) {
-        fetchProjects();
-    } else {
-        setLoading(false);
-    }
-  }, [user]);
-  
+    fetchProjects();
+  }, [user, authLoading, router]);
+
+  if (authLoading || loadingProjects) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Should be redirected, but as a fallback
+  }
+
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -75,11 +87,7 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-       {loading ? (
-         <div className="flex h-64 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      ) : projects && projects.length > 0 ? (
+       {projects.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
