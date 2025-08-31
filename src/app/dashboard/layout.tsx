@@ -41,6 +41,10 @@ export default function DashboardLayout({
     );
   }
 
-  // Fallback for any other case, though it shouldn't be reached with the useEffect redirect.
-  return null;
+  // Fallback while redirecting
+  return (
+    <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
 }
