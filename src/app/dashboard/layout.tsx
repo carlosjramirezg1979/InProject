@@ -23,17 +23,8 @@ export default function DashboardLayout({
   }, [user, loading, router]);
 
   // While checking auth state or fetching the profile, show a loader.
-  if (loading) {
+  if (loading || (user && !userProfile)) {
     return (
-        <div className="flex h-screen items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-    )
-  }
-  
-  // If there is a user, but we are still waiting for the profile from firestore
-  if(user && !userProfile){
-     return (
         <div className="flex h-screen items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>

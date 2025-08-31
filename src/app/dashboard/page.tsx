@@ -21,7 +21,6 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchProjects() {
       if (!user) {
-        setProjects([]);
         setLoading(false);
         return;
       }
@@ -55,8 +54,6 @@ export default function DashboardPage() {
     if (user) {
         fetchProjects();
     } else {
-        // If there's no user, we are not fetching, so stop loading.
-        // The layout will handle redirection if necessary.
         setLoading(false);
     }
   }, [user]);

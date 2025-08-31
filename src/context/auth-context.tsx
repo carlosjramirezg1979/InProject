@@ -67,10 +67,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const reloadUserProfile = useCallback(async () => {
     if (user) {
-        setLoading(true);
         const profile = await fetchUserProfile(user);
         setUserProfile(profile);
-        setLoading(false);
     }
   }, [user]);
 
