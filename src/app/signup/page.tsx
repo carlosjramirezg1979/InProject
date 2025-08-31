@@ -80,8 +80,7 @@ export default function SignUpPage() {
   const onSubmit = async (values: SignUpFormValues) => {
     setIsLoading(true);
     const { user, error } = await signUp(values);
-    setIsLoading(false); // This is the fix
-
+    
     if (user) {
       toast({
         title: '¡Registro exitoso!',
@@ -95,6 +94,7 @@ export default function SignUpPage() {
         description: error,
       });
     }
+    setIsLoading(false);
   };
 
   return (

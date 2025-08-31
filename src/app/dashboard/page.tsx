@@ -29,6 +29,10 @@ export default function DashboardPage() {
     }
 
     async function fetchProjects() {
+      if (!user) {
+        setLoadingProjects(false);
+        return;
+      }
       setLoadingProjects(true);
       try {
         const q = query(
@@ -60,16 +64,12 @@ export default function DashboardPage() {
 
   if (authLoading || loadingProjects) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+      <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
-
-  if (!user) {
-    return null; // Should be redirected, but as a fallback
-  }
-
+  
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
