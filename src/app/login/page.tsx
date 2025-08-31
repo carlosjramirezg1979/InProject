@@ -48,7 +48,8 @@ export default function LoginPage() {
     setError(null);
 
     const result = await signIn(values);
-    
+    setIsSubmitting(false); // This is the fix
+
     if (result.error) {
         setError(result.error);
     } else {
@@ -58,7 +59,6 @@ export default function LoginPage() {
         });
         router.push('/dashboard');
     }
-    setIsSubmitting(false); // Ensure this is called in both cases
   };
 
   return (

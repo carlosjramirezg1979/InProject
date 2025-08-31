@@ -80,7 +80,7 @@ export default function SignUpPage() {
   const onSubmit = async (values: SignUpFormValues) => {
     setIsLoading(true);
     const { user, error } = await signUp(values);
-    setIsLoading(false);
+    setIsLoading(false); // This is the fix
 
     if (user) {
       toast({
