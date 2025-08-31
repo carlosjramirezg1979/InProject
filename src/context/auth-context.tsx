@@ -27,9 +27,10 @@ const fetchUserProfile = async (firebaseUser: User): Promise<ProjectManager | nu
       const docRef = doc(db, "projectManagers", firebaseUser.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
+        // We manually construct the object to ensure the 'id' is included.
         return {
-            ...docSnap.data(),
-            id: docSnap.id
+            id: docSnap.id,
+            ...(docSnap.data() as Omit<ProjectManager, 'id'>)
         } as ProjectManager;
       } else {
         console.warn("User profile not found in Firestore for UID:", firebaseUser.uid);
@@ -67,8 +68,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const reloadUserProfile = useCallback(async () => {
     if (user) {
+        setLoading(true);
         const profile = await fetchUserProfile(user);
         setUserProfile(profile);
+        setLoading(false);
     }
   }, [user]);
 

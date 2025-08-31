@@ -42,17 +42,18 @@ export const signUp = async ({ firstName, lastName, email, password, phone, coun
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Create a document in Firestore for the user profile
-    await setDoc(doc(db, "projectManagers", user.uid), {
+    const userProfileData = {
         firstName,
         lastName,
-        email: user.email, // Storing email in profile for consistency
+        email: user.email,
         phone: phone || '',
         country,
         department,
         city,
         companyIds: [],
-    });
+    };
+    
+    await setDoc(doc(db, "projectManagers", user.uid), userProfileData);
     
     return { user, error: null };
   } catch (error) {
