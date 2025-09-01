@@ -48,6 +48,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [userProfile, setUserProfile] = useState<ProjectManager | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const reloadUserProfile = useCallback(async () => {
+    if (user) {
+        setLoading(true);
+        const profile = await fetchUserProfile(user);
+        setUserProfile(profile);
+        setLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
@@ -63,17 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, []);
-
-
-  const reloadUserProfile = useCallback(async () => {
-    if (user) {
-        setLoading(true);
-        const profile = await fetchUserProfile(user);
-        setUserProfile(profile);
-        setLoading(false);
-    }
-  }, [user]);
+  }, [reloadUserProfile]);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, loading, reloadUserProfile }}>
