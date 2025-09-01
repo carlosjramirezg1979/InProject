@@ -22,7 +22,6 @@ import { Input } from '@/components/ui/input';
 import { signIn } from '@/lib/auth-service';
 import type { SignInFormValues } from '@/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useAuth } from '@/context/auth-context';
 import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
@@ -33,7 +32,6 @@ const formSchema = z.object({
 export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const { user, loading } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   
@@ -62,25 +60,6 @@ export default function LoginPage() {
       router.push('/dashboard');
     }
   };
-
-  if (loading) {
-     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  // If user is already logged in, redirect to dashboard
-  if (user) {
-    router.push('/dashboard');
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
 
   return (
     <div className="flex h-screen items-center justify-center bg-background px-4">

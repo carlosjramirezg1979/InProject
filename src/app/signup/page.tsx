@@ -24,7 +24,6 @@ import { useToast } from '@/hooks/use-toast';
 import { signUp } from '@/lib/auth-service';
 import { departments, getCitiesByDepartment } from "@/lib/locations";
 import type { SignUpFormValues } from '@/types';
-import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
   firstName: z.string().min(1, { message: 'El nombre es obligatorio.' }),
@@ -44,7 +43,6 @@ const formSchema = z.object({
 export default function SignUpPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const { user, loading } = useAuth();
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
@@ -98,24 +96,6 @@ export default function SignUpPage() {
       router.push('/dashboard');
     }
   };
-
-  if (loading) {
-     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
-  // If user is already logged in, redirect to dashboard
-  if (user) {
-    router.push('/dashboard');
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
