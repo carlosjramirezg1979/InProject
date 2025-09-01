@@ -98,8 +98,10 @@ export default function SignUpPage() {
       });
       setIsLoading(false);
     } else {
-      // On success, the AuthContext's onAuthStateChanged listener will handle state,
-      // and we can navigate.
+      toast({
+        title: "¡Cuenta Creada!",
+        description: "Tu cuenta ha sido creada exitosamente.",
+      });
       router.push('/dashboard');
     }
   };

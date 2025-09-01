@@ -19,11 +19,11 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
 import { signIn } from '@/lib/auth-service';
 import type { SignInFormValues } from '@/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useAuth } from '@/context/auth-context';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, introduce un correo electrónico válido.' }),
@@ -32,10 +32,11 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const { user, loading } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-
+  
   React.useEffect(() => {
     if (!loading && user) {
       router.push('/dashboard');
@@ -61,8 +62,10 @@ export default function LoginPage() {
         setError(result.error);
         setIsSubmitting(false);
     } else {
-      // On success, the AuthContext's onAuthStateChanged listener will handle state,
-      // and we can navigate.
+       toast({
+        title: "¡Bienvenido!",
+        description: "Has iniciado sesión correctamente.",
+      });
       router.push('/dashboard');
     }
   };
