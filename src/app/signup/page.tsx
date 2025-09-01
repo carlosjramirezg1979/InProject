@@ -97,12 +97,14 @@ export default function SignUpPage() {
         description: error,
       });
       setIsLoading(false);
-    } 
-    // On success, the AuthContext's onAuthStateChanged listener will handle the redirect.
-    // We don't need to do anything here.
+    } else {
+      // On success, the AuthContext's onAuthStateChanged listener will handle state,
+      // and we can navigate.
+      router.push('/dashboard');
+    }
   };
 
-  if (loading || user) {
+  if (loading || (!loading && user)) {
      return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

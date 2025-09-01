@@ -6,7 +6,6 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { ProjectManager } from '@/types';
-import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -29,7 +28,8 @@ const fetchUserProfile = async (firebaseUser: User): Promise<ProjectManager | nu
       if (docSnap.exists()) {
         return {
             id: docSnap.id,
-            ...(docSnap.data() as Omit<ProjectManager, 'id'>)
+            ...(docSnap.data() as Omit<ProjectManager, 'id' | 'email'>),
+            email: firebaseUser.email!,
         } as ProjectManager;
       } else {
         console.warn("User profile not found in Firestore for UID:", firebaseUser.uid);
@@ -46,12 +46,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<ProjectManager | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   const reloadUserProfile = useCallback(async () => {
     if (auth.currentUser) {
+        setLoading(true);
         const profile = await fetchUserProfile(auth.currentUser);
         setUserProfile(profile);
+        setLoading(false);
     }
   }, []);
 
@@ -62,7 +63,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(currentUser);
         const profile = await fetchUserProfile(currentUser);
         setUserProfile(profile);
-        router.push('/dashboard');
       } else {
         setUser(null);
         setUserProfile(null);
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, loading, reloadUserProfile }}>

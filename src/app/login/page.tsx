@@ -60,12 +60,14 @@ export default function LoginPage() {
     if (result.error) {
         setError(result.error);
         setIsSubmitting(false);
+    } else {
+      // On success, the AuthContext's onAuthStateChanged listener will handle state,
+      // and we can navigate.
+      router.push('/dashboard');
     }
-    // On success, the AuthContext's onAuthStateChanged listener will handle the redirect.
-    // We don't need to do anything here.
   };
 
-  if (loading || user) {
+  if (loading || (!loading && user)) {
      return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
