@@ -39,10 +39,14 @@ export function UserNav() {
   };
 
   const initials = React.useMemo(() => {
-    if (!userProfile?.firstName || !userProfile?.lastName) {
+    if (!userProfile) {
+        return 'U';
+    }
+    const { firstName, lastName } = userProfile;
+    if (!firstName || !lastName) {
       return 'U';
     }
-    return `${userProfile.firstName.charAt(0)}${userProfile.lastName.charAt(0)}`.toUpperCase();
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   }, [userProfile]);
 
   if (!user) {
