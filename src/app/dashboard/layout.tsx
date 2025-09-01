@@ -16,11 +16,15 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
+    // If loading is finished and there's no user, redirect to login.
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
 
+  // While loading or if user data is not yet available, show a loader.
+  // This prevents rendering children until authentication is confirmed.
+  // The userProfile check is crucial to ensure we have Firestore data, not just Firebase Auth.
   if (loading || !user || !userProfile) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -29,6 +33,7 @@ export default function DashboardLayout({
     );
   }
 
+  // Once authenticated and profile is loaded, render the dashboard layout.
   return (
     <div className="relative flex min-h-screen flex-col">
       <Header />

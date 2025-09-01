@@ -65,13 +65,6 @@ export default function SignUpPage() {
     },
   });
 
-  React.useEffect(() => {
-    if (!loading && user) {
-      router.push('/dashboard');
-    }
-  }, [user, loading, router]);
-
-
   const selectedDepartment = form.watch("department");
     
   React.useEffect(() => {
@@ -106,8 +99,18 @@ export default function SignUpPage() {
     }
   };
 
-  if (loading || (!loading && user)) {
+  if (loading) {
      return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  // If user is already logged in, redirect to dashboard
+  if (user) {
+    router.push('/dashboard');
+    return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
