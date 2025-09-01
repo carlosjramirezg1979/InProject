@@ -22,7 +22,6 @@ const AuthContext = createContext<AuthContextType>({
   reloadUserProfile: async () => {},
 });
 
-// Moved outside the component to ensure it's a stable function reference
 const fetchUserProfile = async (firebaseUser: User): Promise<ProjectManager | null> => {
     try {
       const docRef = doc(db, "projectManagers", firebaseUser.uid);
@@ -49,13 +48,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-
   const reloadUserProfile = useCallback(async () => {
     if (auth.currentUser) {
-        setLoading(true);
         const profile = await fetchUserProfile(auth.currentUser);
         setUserProfile(profile);
-        setLoading(false);
     }
   }, []);
 
@@ -75,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, loading, reloadUserProfile }}>

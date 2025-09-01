@@ -88,7 +88,7 @@ export default function SignUpPage() {
 
   const onSubmit = async (values: SignUpFormValues) => {
     setIsLoading(true);
-    const { user, error } = await signUp(values);
+    const { error } = await signUp(values);
 
     if (error) {
       toast({
@@ -97,13 +97,9 @@ export default function SignUpPage() {
         description: error,
       });
       setIsLoading(false);
-    } else {
-      toast({
-        title: '¡Registro exitoso!',
-        description: 'Tu cuenta ha sido creada. Serás redirigido al dashboard.',
-      });
-       // The redirection is now handled by the AuthContext
-    }
+    } 
+    // On success, the AuthContext's onAuthStateChanged listener will handle the redirect.
+    // We don't need to do anything here.
   };
 
   if (loading || user) {

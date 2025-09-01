@@ -31,7 +31,6 @@ const formSchema = z.object({
 });
 
 export default function LoginPage() {
-  const { toast } = useToast();
   const router = useRouter();
   const { user, loading } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -61,13 +60,9 @@ export default function LoginPage() {
     if (result.error) {
         setError(result.error);
         setIsSubmitting(false);
-    } else {
-        toast({
-            title: '¡Bienvenido!',
-            description: 'Has iniciado sesión correctamente.',
-        });
-        // The redirection is now handled by the AuthContext
     }
+    // On success, the AuthContext's onAuthStateChanged listener will handle the redirect.
+    // We don't need to do anything here.
   };
 
   if (loading || user) {
