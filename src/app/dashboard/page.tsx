@@ -6,7 +6,7 @@ import { useAuth } from "@/context/auth-context";
 import { ProjectCard } from "@/components/project-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Loader2 } from "lucide-react";
 import type { Project } from "@/types";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
