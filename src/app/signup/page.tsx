@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -41,6 +42,7 @@ const formSchema = z.object({
 
 export default function SignUpPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [isLoading, setIsLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
@@ -84,8 +86,7 @@ export default function SignUpPage() {
         title: '¡Registro exitoso!',
         description: 'Tu cuenta ha sido creada. Serás redirigido al dashboard.',
       });
-      // Force a hard reload to ensure AuthContext is re-initialized correctly
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
     } else {
       toast({
         variant: 'destructive',

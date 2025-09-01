@@ -3,6 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -30,6 +31,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -55,8 +57,7 @@ export default function LoginPage() {
             title: '¡Bienvenido!',
             description: 'Has iniciado sesión correctamente.',
         });
-        // Force a hard reload to ensure AuthContext is re-initialized correctly
-        window.location.href = '/dashboard';
+        router.push('/dashboard');
     }
   };
 

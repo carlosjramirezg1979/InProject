@@ -19,15 +19,6 @@ export default function DashboardPage() {
   const [loadingProjects, setLoadingProjects] = useState(true);
 
   useEffect(() => {
-    if (authLoading) {
-      return; 
-    }
-
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-
     async function fetchProjects() {
       if (!user) {
         setLoadingProjects(false);
@@ -59,8 +50,10 @@ export default function DashboardPage() {
       }
     }
 
-    fetchProjects();
-  }, [user, authLoading, router]);
+    if (!authLoading && user) {
+        fetchProjects();
+    }
+  }, [user, authLoading]);
 
   if (authLoading || loadingProjects) {
     return (
