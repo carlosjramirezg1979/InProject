@@ -43,7 +43,7 @@ export default function DashboardLayout({
   }
 
   // Si la carga terminó y no hay usuario, la redirección está en curso.
-  // Devolver el loader para evitar un parpadeo de contenido vacío.
+  // Devolver el loader para evitar un parpadeo de contenido vacío o un bucle.
   return (
     <div className="flex h-screen w-full items-center justify-center">
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
