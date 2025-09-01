@@ -2,19 +2,17 @@
 'use client';
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { ProjectCard } from "@/components/project-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { PlusCircle, Loader2 } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import type { Project } from "@/types";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default function DashboardPage() {
-  const { user, loading: authLoading } = useAuth();
-  const router = useRouter();
+  const { user } = useAuth();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(true);
 
@@ -24,7 +22,7 @@ export default function DashboardPage() {
         setLoadingProjects(false);
         return;
       }
-      setLoadingProjects(true);
+      
       try {
         const q = query(
           collection(db, "projects"),
@@ -50,19 +48,9 @@ export default function DashboardPage() {
       }
     }
 
-    if (!authLoading && user) {
-        fetchProjects();
-    }
-  }, [user, authLoading]);
+    fetchProjects();
+  }, [user]);
 
-  if (authLoading || loadingProjects) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-  
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
@@ -80,7 +68,18 @@ export default function DashboardPage() {
         </Button>
       </div>
 
-       {projects.length > 0 ? (
+       {loadingProjects ? (
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="space-y-4">
+                    <div className="h-40 bg-muted rounded-lg animate-pulse" />
+                    <div className="h-6 bg-muted rounded w-3/4 animate-pulse" />
+                    <div className="h-4 bg-muted rounded w-full animate-pulse" />
+                    <div className="h-4 bg-muted rounded w-1/2 animate-pulse" />
+                </div>
+            ))}
+        </div>
+      ) : projects.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />

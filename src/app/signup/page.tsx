@@ -81,6 +81,8 @@ export default function SignUpPage() {
     setIsLoading(true);
     const { user, error } = await signUp(values);
     
+    setIsLoading(false);
+
     if (user) {
       toast({
         title: '¡Registro exitoso!',
@@ -93,7 +95,6 @@ export default function SignUpPage() {
         title: 'Error de registro',
         description: error,
       });
-      setIsLoading(false);
     }
   };
 

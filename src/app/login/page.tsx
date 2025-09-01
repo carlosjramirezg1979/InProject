@@ -49,9 +49,10 @@ export default function LoginPage() {
 
     const result = await signIn(values);
     
+    setIsSubmitting(false);
+
     if (result.error) {
         setError(result.error);
-        setIsSubmitting(false);
     } else {
         toast({
             title: '¡Bienvenido!',
