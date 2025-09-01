@@ -27,7 +27,6 @@ const fetchUserProfile = async (firebaseUser: User): Promise<ProjectManager | nu
       const docRef = doc(db, "projectManagers", firebaseUser.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
-        // We manually construct the object to ensure the 'id' is included.
         return {
             id: docSnap.id,
             ...(docSnap.data() as Omit<ProjectManager, 'id'>)
@@ -72,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     return () => unsubscribe();
-  }, [reloadUserProfile]);
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, userProfile, loading, reloadUserProfile }}>

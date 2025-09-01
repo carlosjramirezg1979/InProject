@@ -80,21 +80,20 @@ export default function SignUpPage() {
   const onSubmit = async (values: SignUpFormValues) => {
     setIsLoading(true);
     const { user, error } = await signUp(values);
-    
-    setIsLoading(false);
 
-    if (user) {
-      toast({
-        title: '¡Registro exitoso!',
-        description: 'Tu cuenta ha sido creada. Serás redirigido al dashboard.',
-      });
-      router.push('/dashboard');
-    } else {
+    if (error) {
       toast({
         variant: 'destructive',
         title: 'Error de registro',
         description: error,
       });
+      setIsLoading(false);
+    } else {
+      toast({
+        title: '¡Registro exitoso!',
+        description: 'Tu cuenta ha sido creada. Serás redirigido al dashboard.',
+      });
+      router.push('/dashboard');
     }
   };
 
@@ -284,7 +283,7 @@ export default function SignUpPage() {
               {isLoading && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
-              Crear Cuenta
+              {isLoading ? 'Creando cuenta...' : 'Crear Cuenta'}
             </Button>
           </form>
         </Form>
