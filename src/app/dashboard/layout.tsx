@@ -16,13 +16,13 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect to login if loading is complete and there's no user
+    // Solo redirigir si la carga ha terminado y no hay usuario.
     if (!loading && !user) {
       router.push('/login');
     }
   }, [user, loading, router]);
 
-  // While loading, show a spinner
+  // Mientras carga, mostrar un spinner.
   if (loading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -31,7 +31,8 @@ export default function DashboardLayout({
     );
   }
   
-  // If loading is finished and there is a user, show the dashboard
+  // Si hay un usuario, mostrar el dashboard.
+  // El useEffect se encargará de redirigir si no hay usuario.
   if (user) {
     return (
       <div className="relative flex min-h-screen flex-col">
@@ -41,7 +42,11 @@ export default function DashboardLayout({
     );
   }
 
-  // If loading is finished and there's no user, router.push is running. 
-  // Return null to avoid rendering anything while redirecting.
-  return null;
+  // Si la carga terminó y no hay usuario, la redirección está en curso.
+  // Devolver el loader para evitar un parpadeo de contenido vacío.
+  return (
+    <div className="flex h-screen w-full items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
 }
