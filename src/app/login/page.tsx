@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { signIn } from '@/lib/auth-service';
 import type { SignInFormValues } from '@/types';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useAuth } from '@/context/auth-context';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Por favor, introduce un correo electrónico válido.' }),
@@ -32,8 +33,16 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { user, loading } = useAuth();
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, loading, router]);
+
 
   const form = useForm<SignInFormValues>({
     resolver: zodResolver(formSchema),
@@ -57,9 +66,17 @@ export default function LoginPage() {
             title: '¡Bienvenido!',
             description: 'Has iniciado sesión correctamente.',
         });
-        router.push('/dashboard');
+        // The redirection is now handled by the AuthContext
     }
   };
+
+  if (loading || user) {
+     return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen items-center justify-center bg-background px-4">

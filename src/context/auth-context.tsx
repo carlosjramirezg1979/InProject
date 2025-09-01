@@ -6,6 +6,7 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { ProjectManager } from '@/types';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -46,15 +47,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<ProjectManager | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
 
   const reloadUserProfile = useCallback(async () => {
-    if (user) {
+    if (auth.currentUser) {
         setLoading(true);
-        const profile = await fetchUserProfile(user);
+        const profile = await fetchUserProfile(auth.currentUser);
         setUserProfile(profile);
         setLoading(false);
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -63,6 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(currentUser);
         const profile = await fetchUserProfile(currentUser);
         setUserProfile(profile);
+        router.push('/dashboard');
       } else {
         setUser(null);
         setUserProfile(null);
