@@ -1,0 +1,21 @@
+
+{
+  "hosting": {
+    "site": "projectwise-rtgmv",
+    "source": ".",
+    "ignore": [
+      "firebase.json",
+      ".firebaserc",
+      "**/.*",
+      "**/node_modules/**",
+      "**/.next/**",
+      "**/out/**",
+      "build",
+      "dist",
+      ".firebase/**"
+    ],
+    "frameworksBackend": {
+      "region": "us-central1"
+    }
+  }
+}
